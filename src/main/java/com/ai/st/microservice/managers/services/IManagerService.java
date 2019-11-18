@@ -14,4 +14,6 @@ public interface IManagerService {
 
 	public List<ManagerEntity> getManagersByStateId(Long managerStateId);
 
+	public ManagerEntity getManagerById(Long id);
+
 }

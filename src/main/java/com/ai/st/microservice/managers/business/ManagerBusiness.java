@@ -47,4 +47,22 @@ public class ManagerBusiness {
 		return listManagersDto;
 	}
 
+	public ManagerDto getManagerById(Long id) throws BusinessException {
+
+		ManagerDto managerDto = null;
+
+		ManagerEntity managerEntity = managerService.getManagerById(id);
+		if (managerEntity instanceof ManagerEntity) {
+			managerDto = new ManagerDto();
+			managerDto.setId(managerEntity.getId());
+			managerDto.setName(managerEntity.getName());
+			managerDto.setTaxIdentificationNumber(managerEntity.getTaxIdentificationNumber());
+			managerDto.setCreatedAt(managerEntity.getCreatedAt());
+			managerDto.setManagerState(new ManagerStateDto(managerEntity.getManagerState().getId(),
+					managerEntity.getManagerState().getName()));
+		}
+
+		return managerDto;
+	}
+
 }

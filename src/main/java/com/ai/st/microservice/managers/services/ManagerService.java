@@ -37,4 +37,9 @@ public class ManagerService implements IManagerService {
 		return managerRepository.getManagersByStateId(managerStateId);
 	}
 
+	@Override
+	public ManagerEntity getManagerById(Long id) {
+		return managerRepository.findById(id).orElse(null);
+	}
+
 }

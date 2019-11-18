@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,8 +25,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE,
-		RequestMethod.OPTIONS })
 @Api(value = "Managers", description = "Managers", tags = { "Managers" })
 @RestController
 @RequestMapping("api/managers/v1/managers")
@@ -65,6 +63,33 @@ public class ManagerV1Controller {
 		}
 
 		return new ResponseEntity<>(listManagers, httpStatus);
+	}
+
+	@RequestMapping(value = "/{managerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation(value = "Get managers")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Get managers", response = ManagerDto.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "Error Server", response = String.class) })
+	@ResponseBody
+	public ResponseEntity<ManagerDto> getManagerById(@PathVariable Long managerId) {
+
+		HttpStatus httpStatus = null;
+		ManagerDto managerDto = null;
+
+		try {
+
+			managerDto = managerBusiness.getManagerById(managerId);
+
+			httpStatus = (managerDto instanceof ManagerDto) ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+		} catch (BusinessException e) {
+			log.error("Error ManagerV1Controller@getManagerById#Business ---> " + e.getMessage());
+			httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+		} catch (Exception e) {
+			log.error("Error ManagerV1Controller@getManagerById#General ---> " + e.getMessage());
+			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+
+		return new ResponseEntity<>(managerDto, httpStatus);
 	}
 
 }
