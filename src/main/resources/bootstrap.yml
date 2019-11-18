@@ -6,7 +6,7 @@ spring:
       - "develop"
   cloud:
     config:
-      enabled: false
+      enabled: true
       
 ---
 spring:
