@@ -65,4 +65,9 @@ public class ManagerBusiness {
 		return managerDto;
 	}
 
+	public List<ManagerDto> getManagersByUserCode(Long userCode) {
+
+		return null;
+	}
+
 }

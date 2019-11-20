@@ -66,9 +66,9 @@ public class ManagerV1Controller {
 	}
 
 	@RequestMapping(value = "/{managerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(value = "Get managers")
+	@ApiOperation(value = "Get manager by id")
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Get managers", response = ManagerDto.class, responseContainer = "List"),
+			@ApiResponse(code = 200, message = "Get manager by id", response = ManagerDto.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "Error Server", response = String.class) })
 	@ResponseBody
 	public ResponseEntity<ManagerDto> getManagerById(@PathVariable Long managerId) {

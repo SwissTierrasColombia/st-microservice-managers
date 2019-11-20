@@ -2,12 +2,9 @@ package com.ai.st.microservice.managers.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -24,10 +21,6 @@ public class ManagerProfileEntity {
 
 	@Column(name = "description", nullable = true, length = 255)
 	private String description;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "manager_id", referencedColumnName = "id", nullable = false)
-	private ManagerEntity manager;
 
 	public ManagerProfileEntity() {
 
@@ -55,14 +48,6 @@ public class ManagerProfileEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public ManagerEntity getManager() {
-		return manager;
-	}
-
-	public void setManager(ManagerEntity manager) {
-		this.manager = manager;
 	}
 
 }
