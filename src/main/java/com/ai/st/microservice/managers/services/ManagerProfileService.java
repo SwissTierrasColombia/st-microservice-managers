@@ -1,5 +1,7 @@
 package com.ai.st.microservice.managers.services;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,11 @@ public class ManagerProfileService implements IManagerProfileService {
 	@Override
 	public ManagerProfileEntity getManagerProfileById(Long id) {
 		return managerProfileRepository.findById(id).orElse(null);
+	}
+
+	@Override
+	public List<ManagerProfileEntity> getAllProfiles() {
+		return managerProfileRepository.findAll();
 	}
 
 }

@@ -7,27 +7,35 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ai.st.microservice.managers.business.ManagerBusiness;
 import com.ai.st.microservice.managers.business.ManagerUserBusiness;
+import com.ai.st.microservice.managers.dto.AddUserToManagerDto;
+import com.ai.st.microservice.managers.dto.ErrorDto;
 import com.ai.st.microservice.managers.dto.ManagerDto;
 import com.ai.st.microservice.managers.exceptions.BusinessException;
+import com.ai.st.microservice.managers.exceptions.InputValidationException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-@Api(value = "Managers", description = "Managers", tags = { "Managers" })
+@Api(value = "Managers", description = "Managers", tags = { "Managers User" })
 @RestController
 @RequestMapping("api/managers/v1/users")
 public class ManagerUserV1Controller {
 
 	@Autowired
 	private ManagerUserBusiness managerUserBusiness;
+
+	@Autowired
+	private ManagerBusiness managerBusiness;
 
 	private final Logger log = LoggerFactory.getLogger(ManagerV1Controller.class);
 
@@ -53,6 +61,56 @@ public class ManagerUserV1Controller {
 		}
 
 		return new ResponseEntity<>(managerDto, httpStatus);
+	}
+
+	@RequestMapping(value = "", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation(value = "Add user to manager")
+	@ApiResponses(value = { @ApiResponse(code = 201, message = "Add user to manager", response = ManagerDto.class),
+			@ApiResponse(code = 500, message = "Error Server", response = String.class) })
+	@ResponseBody
+	public ResponseEntity<Object> addUserToManager(@RequestBody AddUserToManagerDto addUserToManager) {
+
+		HttpStatus httpStatus = null;
+		Object responseDto = null;
+
+		try {
+
+			// validation user code
+			Long userCode = addUserToManager.getUserCode();
+			if (userCode == null || userCode <= 0) {
+				throw new InputValidationException("El código de usuario es inválido.");
+			}
+
+			// validation manager id
+			Long managerId = addUserToManager.getManagerId();
+			if (managerId == null || managerId <= 0) {
+				throw new InputValidationException("El gestor es inválido.");
+			}
+
+			// validation profile id
+			Long profileId = addUserToManager.getProfileId();
+			if (profileId == null || profileId <= 0) {
+				throw new InputValidationException("El perfil es inválido.");
+			}
+
+			responseDto = managerBusiness.addUserToManager(userCode, managerId, profileId);
+			httpStatus = HttpStatus.CREATED;
+
+		} catch (InputValidationException e) {
+			log.error("Error ManagerUserV1Controller@addUserToManager#Validation ---> " + e.getMessage());
+			httpStatus = HttpStatus.BAD_REQUEST;
+			responseDto = new ErrorDto(e.getMessage(), 1);
+		} catch (BusinessException e) {
+			log.error("Error ManagerUserV1Controller@addUserToManager#Business ---> " + e.getMessage());
+			httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+			responseDto = new ErrorDto(e.getMessage(), 2);
+		} catch (Exception e) {
+			log.error("Error ManagerUserV1Controller@addUserToManager#General ---> " + e.getMessage());
+			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+			responseDto = new ErrorDto(e.getMessage(), 3);
+		}
+
+		return new ResponseEntity<>(responseDto, httpStatus);
 	}
 
 }

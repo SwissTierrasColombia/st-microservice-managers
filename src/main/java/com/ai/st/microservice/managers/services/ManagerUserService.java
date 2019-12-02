@@ -7,6 +7,8 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ai.st.microservice.managers.entities.ManagerEntity;
+import com.ai.st.microservice.managers.entities.ManagerProfileEntity;
 import com.ai.st.microservice.managers.entities.ManagerUserEntity;
 import com.ai.st.microservice.managers.repositories.ManagerUserRepository;
 
@@ -25,6 +27,13 @@ public class ManagerUserService implements IManagerUserService {
 	@Override
 	public List<ManagerUserEntity> getManagersUsersByUserCode(Long userCode) {
 		return managerUserRepository.getUsersByUserCode(userCode);
+	}
+
+	@Override
+	public ManagerUserEntity getManagerUserByUserCodeAndManagerAndProfile(Long userCode,
+			ManagerEntity managerUserEntity, ManagerProfileEntity profileEntity) {
+		return managerUserRepository.findByUserCodeAndManagerAndManagerProfile(userCode, managerUserEntity,
+				profileEntity);
 	}
 
 }

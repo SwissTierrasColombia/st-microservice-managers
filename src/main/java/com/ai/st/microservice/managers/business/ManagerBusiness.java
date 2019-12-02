@@ -1,22 +1,35 @@
 package com.ai.st.microservice.managers.business;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ai.st.microservice.managers.dto.ManagerDto;
+import com.ai.st.microservice.managers.dto.ManagerProfileDto;
 import com.ai.st.microservice.managers.dto.ManagerStateDto;
+import com.ai.st.microservice.managers.dto.ManagerUserDto;
 import com.ai.st.microservice.managers.entities.ManagerEntity;
+import com.ai.st.microservice.managers.entities.ManagerProfileEntity;
+import com.ai.st.microservice.managers.entities.ManagerUserEntity;
 import com.ai.st.microservice.managers.exceptions.BusinessException;
+import com.ai.st.microservice.managers.services.IManagerProfileService;
 import com.ai.st.microservice.managers.services.IManagerService;
+import com.ai.st.microservice.managers.services.IManagerUserService;
 
 @Component
 public class ManagerBusiness {
 
 	@Autowired
 	private IManagerService managerService;
+
+	@Autowired
+	private IManagerUserService managerUserService;
+
+	@Autowired
+	private IManagerProfileService managerProfileService;
 
 	public List<ManagerDto> getManagers(Long managerStateId) throws BusinessException {
 
@@ -65,9 +78,50 @@ public class ManagerBusiness {
 		return managerDto;
 	}
 
-	public List<ManagerDto> getManagersByUserCode(Long userCode) {
+	public ManagerUserDto addUserToManager(Long userCode, Long managerId, Long profileId) throws BusinessException {
 
-		return null;
+		// verify if manager does exits
+		ManagerEntity managerEntity = managerService.getManagerById(managerId);
+		if (!(managerEntity instanceof ManagerEntity)) {
+			throw new BusinessException("El gestor no existe.");
+		}
+
+		// verify if profile does exists
+		ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(profileId);
+		if (!(managerProfileEntity instanceof ManagerProfileEntity)) {
+			throw new BusinessException("El perfil no existe.");
+		}
+
+		ManagerUserEntity existsUser = managerUserService.getManagerUserByUserCodeAndManagerAndProfile(userCode,
+				managerEntity, managerProfileEntity);
+		if (existsUser instanceof ManagerUserEntity) {
+			throw new BusinessException("El usuario ya se encuentra registrado.");
+		}
+
+		ManagerUserEntity managerUserEntity = new ManagerUserEntity();
+		managerUserEntity.setCreatedAt(new Date());
+		managerUserEntity.setManager(managerEntity);
+		managerUserEntity.setManagerProfile(managerProfileEntity);
+		managerUserEntity.setUserCode(userCode);
+
+		managerUserEntity = managerUserService.createManagerUser(managerUserEntity);
+
+		ManagerUserDto managerUserDto = new ManagerUserDto();
+		managerUserDto.setUserCode(managerUserEntity.getUserCode());
+
+		List<ManagerProfileDto> listProfiles = new ArrayList<ManagerProfileDto>();
+		List<ManagerUserEntity> list = managerUserService.getManagersUsersByUserCode(managerUserEntity.getUserCode());
+		for (ManagerUserEntity muEntity : list) {
+			ManagerProfileEntity managerProfile = muEntity.getManagerProfile();
+			ManagerProfileDto managerProfileDto = new ManagerProfileDto();
+			managerProfileDto.setDescription(managerProfile.getDescription());
+			managerProfileDto.setId(managerProfile.getId());
+			managerProfileDto.setName(managerProfile.getName());
+			listProfiles.add(managerProfileDto);
+		}
+		managerUserDto.setProfiles(listProfiles);
+
+		return managerUserDto;
 	}
 
 }
