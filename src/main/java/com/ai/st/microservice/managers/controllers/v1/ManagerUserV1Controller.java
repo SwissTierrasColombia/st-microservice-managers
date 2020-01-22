@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ai.st.microservice.managers.business.ManagerBusiness;
+import com.ai.st.microservice.managers.business.ManagerProfileBusiness;
 import com.ai.st.microservice.managers.business.ManagerUserBusiness;
 import com.ai.st.microservice.managers.dto.AddUserToManagerDto;
 import com.ai.st.microservice.managers.dto.ErrorDto;
 import com.ai.st.microservice.managers.dto.ManagerDto;
+import com.ai.st.microservice.managers.dto.ManagerProfileDto;
 import com.ai.st.microservice.managers.exceptions.BusinessException;
 import com.ai.st.microservice.managers.exceptions.InputValidationException;
 
@@ -36,6 +38,9 @@ public class ManagerUserV1Controller {
 
 	@Autowired
 	private ManagerBusiness managerBusiness;
+
+	@Autowired
+	private ManagerProfileBusiness managerProfileBusiness;
 
 	private final Logger log = LoggerFactory.getLogger(ManagerV1Controller.class);
 
@@ -106,6 +111,34 @@ public class ManagerUserV1Controller {
 			responseDto = new ErrorDto(e.getMessage(), 2);
 		} catch (Exception e) {
 			log.error("Error ManagerUserV1Controller@addUserToManager#General ---> " + e.getMessage());
+			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+			responseDto = new ErrorDto(e.getMessage(), 3);
+		}
+
+		return new ResponseEntity<>(responseDto, httpStatus);
+	}
+
+	@RequestMapping(value = "{userCode}/profiles", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation(value = "Get profiles by user")
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Get profiles by user", response = ManagerProfileDto.class),
+			@ApiResponse(code = 500, message = "Error Server", response = String.class) })
+	@ResponseBody
+	public ResponseEntity<?> getProfilesByUser(@PathVariable Long userCode) {
+
+		HttpStatus httpStatus = null;
+		Object responseDto = null;
+
+		try {
+			responseDto = managerProfileBusiness.getProfilesByUser(userCode);
+			httpStatus = HttpStatus.OK;
+
+		} catch (BusinessException e) {
+			log.error("Error ManagerUserV1Controller@getProfiles#Business ---> " + e.getMessage());
+			httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+			responseDto = new ErrorDto(e.getMessage(), 2);
+		} catch (Exception e) {
+			log.error("Error ManagerUserV1Controller@getProfiles#General ---> " + e.getMessage());
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 			responseDto = new ErrorDto(e.getMessage(), 3);
 		}
