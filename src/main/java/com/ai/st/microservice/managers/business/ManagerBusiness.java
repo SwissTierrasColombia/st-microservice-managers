@@ -124,4 +124,70 @@ public class ManagerBusiness {
 		return managerUserDto;
 	}
 
+	public List<ManagerUserDto> getUsersByManager(Long managerId, List<Long> profiles) throws BusinessException {
+
+		List<ManagerUserDto> listUsersDto = new ArrayList<>();
+
+		// verify if manager does exits
+		ManagerEntity managerEntity = managerService.getManagerById(managerId);
+		if (!(managerEntity instanceof ManagerEntity)) {
+			throw new BusinessException("El gestor no existe.");
+		}
+
+		List<ManagerUserEntity> managersUsersEntity = null;
+
+		if (profiles != null && profiles.size() > 0) {
+
+			List<ManagerProfileEntity> profilesEntity = new ArrayList<>();
+			for (Long profileId : profiles) {
+				ManagerProfileEntity profileEntity = managerProfileService.getManagerProfileById(profileId);
+				if (profileEntity instanceof ManagerProfileEntity) {
+					profilesEntity.add(profileEntity);
+				}
+			}
+
+			managersUsersEntity = managerUserService.getManagersUsersByManagerAndProfiles(managerEntity,
+					profilesEntity);
+
+		} else {
+			managersUsersEntity = managerUserService.getManagersUsersByManager(managerEntity);
+		}
+
+		for (ManagerUserEntity managerUserEntity : managersUsersEntity) {
+
+			ManagerUserDto managerUserDtoFound = listUsersDto.stream()
+					.filter(managerUserDto -> managerUserDto.getUserCode() == managerUserEntity.getUserCode()).findAny()
+					.orElse(null);
+
+			ManagerProfileEntity managerProfileEntity = managerUserEntity.getManagerProfile();
+
+			if (managerUserDtoFound == null) {
+
+				ManagerUserDto managerUserDto = new ManagerUserDto();
+				managerUserDto.setUserCode(managerUserEntity.getUserCode());
+
+				List<ManagerProfileDto> profilesDto = new ArrayList<>();
+				profilesDto.add(new ManagerProfileDto(managerProfileEntity.getId(),
+						managerProfileEntity.getDescription(), managerProfileEntity.getName()));
+				managerUserDto.setProfiles(profilesDto);
+
+				listUsersDto.add(managerUserDto);
+			} else {
+
+				for (ManagerUserDto managerUserDto : listUsersDto) {
+
+					if (managerUserDto.getUserCode() == managerUserEntity.getUserCode()) {
+						managerUserDto.getProfiles().add(new ManagerProfileDto(managerProfileEntity.getId(),
+								managerProfileEntity.getDescription(), managerProfileEntity.getName()));
+					}
+
+				}
+
+			}
+
+		}
+
+		return listUsersDto;
+	}
+
 }

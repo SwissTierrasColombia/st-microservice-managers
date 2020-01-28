@@ -15,4 +15,9 @@ public interface ManagerUserRepository extends CrudRepository<ManagerUserEntity,
 	ManagerUserEntity findByUserCodeAndManagerAndManagerProfile(Long userCode, ManagerEntity manager,
 			ManagerProfileEntity managerProfile);
 
+	List<ManagerUserEntity> findByManagerAndManagerProfileIn(ManagerEntity manager,
+			List<ManagerProfileEntity> profiles);
+
+	List<ManagerUserEntity> findByManager(ManagerEntity manager);
+
 }

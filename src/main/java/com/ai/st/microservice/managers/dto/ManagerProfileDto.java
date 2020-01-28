@@ -23,6 +23,12 @@ public class ManagerProfileDto implements Serializable {
 
 	}
 
+	public ManagerProfileDto(Long id, String description, String name) {
+		this.id = id;
+		this.description = description;
+		this.name = name;
+	}
+
 	public Long getId() {
 		return id;
 	}
