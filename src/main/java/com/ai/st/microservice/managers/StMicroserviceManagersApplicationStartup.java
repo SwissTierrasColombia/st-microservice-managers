@@ -114,6 +114,41 @@ public class StMicroserviceManagersApplicationStartup implements ApplicationList
 				managerUAECD.setManagerState(stateActive);
 				managerUAECD = managerService.createManager(managerUAECD);
 
+				ManagerEntity manager1 = new ManagerEntity();
+				manager1.setName("GESTOR 1");
+				manager1.setTaxIdentificationNumber("000-00-1");
+				manager1.setCreatedAt(new Date());
+				manager1.setManagerState(stateActive);
+				managerService.createManager(manager1);
+
+				ManagerEntity manager2 = new ManagerEntity();
+				manager2.setName("GESTOR 2");
+				manager2.setTaxIdentificationNumber("000-00-2");
+				manager2.setCreatedAt(new Date());
+				manager2.setManagerState(stateActive);
+				managerService.createManager(manager2);
+
+				ManagerEntity manager3 = new ManagerEntity();
+				manager3.setName("GESTOR 3");
+				manager3.setTaxIdentificationNumber("000-00-3");
+				manager3.setCreatedAt(new Date());
+				manager3.setManagerState(stateActive);
+				managerService.createManager(manager3);
+
+				ManagerEntity manager4 = new ManagerEntity();
+				manager4.setName("GESTOR 4");
+				manager4.setTaxIdentificationNumber("000-00-4");
+				manager4.setCreatedAt(new Date());
+				manager4.setManagerState(stateActive);
+				managerService.createManager(manager4);
+
+				ManagerEntity manager5 = new ManagerEntity();
+				manager5.setName("GESTOR 5");
+				manager5.setTaxIdentificationNumber("000-00-5");
+				manager5.setCreatedAt(new Date());
+				manager5.setManagerState(stateActive);
+				managerService.createManager(manager5);
+
 				log.info("The domains 'managers' have been loaded!");
 			} catch (Exception e) {
 				log.error("Failed to load 'managers' domains");
