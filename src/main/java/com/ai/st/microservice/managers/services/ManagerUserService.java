@@ -31,9 +31,20 @@ public class ManagerUserService implements IManagerUserService {
 
 	@Override
 	public ManagerUserEntity getManagerUserByUserCodeAndManagerAndProfile(Long userCode,
-			ManagerEntity managerUserEntity, ManagerProfileEntity profileEntity) {
-		return managerUserRepository.findByUserCodeAndManagerAndManagerProfile(userCode, managerUserEntity,
+			ManagerEntity managerEntity, ManagerProfileEntity profileEntity) {
+		return managerUserRepository.findByUserCodeAndManagerAndManagerProfile(userCode, managerEntity,
 				profileEntity);
+	}
+
+	@Override
+	public List<ManagerUserEntity> getManagersUsersByManagerAndProfiles(ManagerEntity managerEntity,
+			List<ManagerProfileEntity> profiles) {
+		return managerUserRepository.findByManagerAndManagerProfileIn(managerEntity, profiles);
+	}
+
+	@Override
+	public List<ManagerUserEntity> getManagersUsersByManager(ManagerEntity managerEntity) {
+		return managerUserRepository.findByManager(managerEntity);
 	}
 
 }

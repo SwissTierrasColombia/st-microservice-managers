@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ai.st.microservice.managers.business.ManagerBusiness;
+import com.ai.st.microservice.managers.dto.ErrorDto;
 import com.ai.st.microservice.managers.dto.ManagerDto;
+import com.ai.st.microservice.managers.dto.ManagerUserDto;
 import com.ai.st.microservice.managers.exceptions.BusinessException;
 
 import io.swagger.annotations.Api;
@@ -90,6 +92,36 @@ public class ManagerV1Controller {
 		}
 
 		return new ResponseEntity<>(managerDto, httpStatus);
+	}
+
+	@RequestMapping(value = "/{managerId}/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation(value = "Get users by manager")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Get users by manager", response = ManagerUserDto.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "Error Server", response = String.class) })
+	@ResponseBody
+	public ResponseEntity<?> getUsersByManager(@PathVariable Long managerId,
+			@RequestParam(required = false, name = "profiles") List<Long> profiles) {
+
+		HttpStatus httpStatus = null;
+		Object responseDto = null;
+
+		try {
+
+			responseDto = managerBusiness.getUsersByManager(managerId, profiles);
+			httpStatus = HttpStatus.OK;
+
+		} catch (BusinessException e) {
+			log.error("Error ManagerV1Controller@getManagerById#Business ---> " + e.getMessage());
+			httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+			responseDto = new ErrorDto(e.getMessage(), 2);
+		} catch (Exception e) {
+			log.error("Error ManagerV1Controller@getManagerById#General ---> " + e.getMessage());
+			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+			responseDto = new ErrorDto(e.getMessage(), 3);
+		}
+
+		return new ResponseEntity<>(responseDto, httpStatus);
 	}
 
 }

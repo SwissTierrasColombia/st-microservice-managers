@@ -12,7 +12,12 @@ public interface IManagerUserService {
 
 	public List<ManagerUserEntity> getManagersUsersByUserCode(Long userCode);
 
-	public ManagerUserEntity getManagerUserByUserCodeAndManagerAndProfile(Long userCode,
-			ManagerEntity managerUserEntity, ManagerProfileEntity profileEntity);
+	public ManagerUserEntity getManagerUserByUserCodeAndManagerAndProfile(Long userCode, ManagerEntity managerEntity,
+			ManagerProfileEntity profileEntity);
+
+	public List<ManagerUserEntity> getManagersUsersByManagerAndProfiles(ManagerEntity managerEntity,
+			List<ManagerProfileEntity> profiles);
+
+	public List<ManagerUserEntity> getManagersUsersByManager(ManagerEntity managerEntity);
 
 }
