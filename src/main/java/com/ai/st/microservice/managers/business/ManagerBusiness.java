@@ -156,8 +156,8 @@ public class ManagerBusiness {
 		for (ManagerUserEntity managerUserEntity : managersUsersEntity) {
 
 			ManagerUserDto managerUserDtoFound = listUsersDto.stream()
-					.filter(managerUserDto -> managerUserDto.getUserCode() == managerUserEntity.getUserCode()).findAny()
-					.orElse(null);
+					.filter(managerUserDto -> managerUserDto.getUserCode().equals(managerUserEntity.getUserCode()))
+					.findAny().orElse(null);
 
 			ManagerProfileEntity managerProfileEntity = managerUserEntity.getManagerProfile();
 
@@ -176,7 +176,7 @@ public class ManagerBusiness {
 
 				for (ManagerUserDto managerUserDto : listUsersDto) {
 
-					if (managerUserDto.getUserCode() == managerUserEntity.getUserCode()) {
+					if (managerUserDto.getUserCode().equals(managerUserEntity.getUserCode())) {
 						managerUserDto.getProfiles().add(new ManagerProfileDto(managerProfileEntity.getId(),
 								managerProfileEntity.getDescription(), managerProfileEntity.getName()));
 					}
