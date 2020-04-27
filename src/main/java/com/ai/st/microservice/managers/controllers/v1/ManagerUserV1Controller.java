@@ -146,4 +146,54 @@ public class ManagerUserV1Controller {
 		return new ResponseEntity<>(responseDto, httpStatus);
 	}
 
+	@RequestMapping(value = "", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation(value = "Remove user to manager")
+	@ApiResponses(value = { @ApiResponse(code = 201, message = "Remove user to manager", response = ManagerDto.class),
+			@ApiResponse(code = 500, message = "Error Server", response = String.class) })
+	@ResponseBody
+	public ResponseEntity<Object> removeUserToManager(@RequestBody AddUserToManagerDto addUserToManager) {
+
+		HttpStatus httpStatus = null;
+		Object responseDto = null;
+
+		try {
+
+			// validation user code
+			Long userCode = addUserToManager.getUserCode();
+			if (userCode == null || userCode <= 0) {
+				throw new InputValidationException("El código de usuario es inválido.");
+			}
+
+			// validation manager id
+			Long managerId = addUserToManager.getManagerId();
+			if (managerId == null || managerId <= 0) {
+				throw new InputValidationException("El gestor es inválido.");
+			}
+
+			// validation profile id
+			Long profileId = addUserToManager.getProfileId();
+			if (profileId == null || profileId <= 0) {
+				throw new InputValidationException("El perfil es inválido.");
+			}
+
+			responseDto = managerBusiness.removeUserToManager(userCode, managerId, profileId);
+			httpStatus = HttpStatus.OK;
+
+		} catch (InputValidationException e) {
+			log.error("Error ManagerUserV1Controller@removeUserToManager#Validation ---> " + e.getMessage());
+			httpStatus = HttpStatus.BAD_REQUEST;
+			responseDto = new ErrorDto(e.getMessage(), 1);
+		} catch (BusinessException e) {
+			log.error("Error ManagerUserV1Controller@removeUserToManager#Business ---> " + e.getMessage());
+			httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+			responseDto = new ErrorDto(e.getMessage(), 2);
+		} catch (Exception e) {
+			log.error("Error ManagerUserV1Controller@removeUserToManager#General ---> " + e.getMessage());
+			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+			responseDto = new ErrorDto(e.getMessage(), 3);
+		}
+
+		return new ResponseEntity<>(responseDto, httpStatus);
+	}
+
 }

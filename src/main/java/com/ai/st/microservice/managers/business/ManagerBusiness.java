@@ -190,4 +190,49 @@ public class ManagerBusiness {
 		return listUsersDto;
 	}
 
+	public ManagerUserDto removeUserToManager(Long userCode, Long managerId, Long profileId) throws BusinessException {
+
+		// verify if manager does exits
+		ManagerEntity managerEntity = managerService.getManagerById(managerId);
+		if (!(managerEntity instanceof ManagerEntity)) {
+			throw new BusinessException("El gestor no existe.");
+		}
+
+		// verify if profile does exists
+		ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(profileId);
+		if (!(managerProfileEntity instanceof ManagerProfileEntity)) {
+			throw new BusinessException("El perfil no existe.");
+		}
+
+		ManagerUserEntity existsUser = managerUserService.getManagerUserByUserCodeAndManagerAndProfile(userCode,
+				managerEntity, managerProfileEntity);
+		if (!(existsUser instanceof ManagerUserEntity)) {
+			throw new BusinessException("El usuario no tiene asignado el perfil.");
+		}
+
+		List<ManagerUserEntity> profilesUser = managerUserService.getManagersUsersByUserCode(userCode);
+		if (profilesUser.size() <= 1) {
+			throw new BusinessException("No se puede quitar el perfil al usuario porque es el único que tiene.");
+		}
+
+		managerUserService.deleteManagerUserById(existsUser.getId());
+
+		ManagerUserDto managerUserDto = new ManagerUserDto();
+		managerUserDto.setUserCode(userCode);
+
+		List<ManagerProfileDto> listProfiles = new ArrayList<ManagerProfileDto>();
+		List<ManagerUserEntity> list = managerUserService.getManagersUsersByUserCode(userCode);
+		for (ManagerUserEntity muEntity : list) {
+			ManagerProfileEntity managerProfile = muEntity.getManagerProfile();
+			ManagerProfileDto managerProfileDto = new ManagerProfileDto();
+			managerProfileDto.setDescription(managerProfile.getDescription());
+			managerProfileDto.setId(managerProfile.getId());
+			managerProfileDto.setName(managerProfile.getName());
+			listProfiles.add(managerProfileDto);
+		}
+		managerUserDto.setProfiles(listProfiles);
+
+		return managerUserDto;
+	}
+
 }
