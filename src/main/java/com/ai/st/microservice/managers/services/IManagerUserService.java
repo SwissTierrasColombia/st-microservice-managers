@@ -20,4 +20,6 @@ public interface IManagerUserService {
 
 	public List<ManagerUserEntity> getManagersUsersByManager(ManagerEntity managerEntity);
 
+	public void deleteManagerUserById(Long id);
+
 }

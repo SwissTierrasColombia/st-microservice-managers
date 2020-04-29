@@ -30,10 +30,9 @@ public class ManagerUserService implements IManagerUserService {
 	}
 
 	@Override
-	public ManagerUserEntity getManagerUserByUserCodeAndManagerAndProfile(Long userCode,
-			ManagerEntity managerEntity, ManagerProfileEntity profileEntity) {
-		return managerUserRepository.findByUserCodeAndManagerAndManagerProfile(userCode, managerEntity,
-				profileEntity);
+	public ManagerUserEntity getManagerUserByUserCodeAndManagerAndProfile(Long userCode, ManagerEntity managerEntity,
+			ManagerProfileEntity profileEntity) {
+		return managerUserRepository.findByUserCodeAndManagerAndManagerProfile(userCode, managerEntity, profileEntity);
 	}
 
 	@Override
@@ -45,6 +44,12 @@ public class ManagerUserService implements IManagerUserService {
 	@Override
 	public List<ManagerUserEntity> getManagersUsersByManager(ManagerEntity managerEntity) {
 		return managerUserRepository.findByManager(managerEntity);
+	}
+
+	@Override
+	@Transactional
+	public void deleteManagerUserById(Long id) {
+		managerUserRepository.deleteById(id);
 	}
 
 }
