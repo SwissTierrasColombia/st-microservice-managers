@@ -9,6 +9,8 @@ public interface IManagerService {
 	public ManagerEntity createManager(ManagerEntity manager);
 
 	public Long getCount();
+	
+	public ManagerEntity updateManager(ManagerEntity manager);
 
 	public List<ManagerEntity> getAllManagers();
 

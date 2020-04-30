@@ -42,4 +42,9 @@ public class ManagerService implements IManagerService {
 		return managerRepository.findById(id).orElse(null);
 	}
 
+	@Override
+	public ManagerEntity updateManager(ManagerEntity manager) {
+		return managerRepository.save(manager);
+	}
+
 }
