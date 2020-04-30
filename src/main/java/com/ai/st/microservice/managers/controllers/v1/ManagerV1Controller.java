@@ -173,7 +173,7 @@ public class ManagerV1Controller {
 		return new ResponseEntity<>(responseDto, httpStatus);
 	}
 
-	@PutMapping("/{id}/activate")
+	@PutMapping("/{id}/enable")
 	@ApiOperation(value = "Activate manager")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Manager activated", response = ManagerDto.class),
 			@ApiResponse(code = 404, message = "Manager not found"),
@@ -199,7 +199,7 @@ public class ManagerV1Controller {
 		return new ResponseEntity<>(managerDtoResponse, httpStatus);
 	}
 
-	@PutMapping("/{id}/deactivate")
+	@PutMapping("/{id}/disable")
 	@ApiOperation(value = "Disable manager")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Manager disabled", response = ManagerDto.class),
 			@ApiResponse(code = 404, message = "Manager not found"),
@@ -227,7 +227,7 @@ public class ManagerV1Controller {
 
 	@RequestMapping(value = "", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(value = "Update Manager")
-	@ApiResponses(value = { @ApiResponse(code = 201, message = "Create Manager", response = ManagerDto.class),
+	@ApiResponses(value = { @ApiResponse(code = 201, message = "Update Manager", response = ManagerDto.class),
 			@ApiResponse(code = 500, message = "Error Server", response = String.class) })
 	@ResponseBody
 	public ResponseEntity<Object> updateManager(@RequestBody UpdateManagerDto requestUpdateManager) {
@@ -239,7 +239,7 @@ public class ManagerV1Controller {
 
 			// validation manager id
 			Long managerId = requestUpdateManager.getId();
-			if (managerId > 0) {
+			if (managerId <= 0) {
 				throw new InputValidationException("El id del gestor es requerido");
 			}
 

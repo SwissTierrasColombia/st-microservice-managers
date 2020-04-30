@@ -299,7 +299,7 @@ public class ManagerBusiness {
 
 	public ManagerDto updateManager(Long managerId, String name, String taxIdentification) throws BusinessException {
 
-		if (managerId > 0) {
+		if (managerId <= 0) {
 			throw new BusinessException("El gestor debe contener un id.");
 		}
 
