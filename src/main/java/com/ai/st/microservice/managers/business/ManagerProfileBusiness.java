@@ -65,4 +65,87 @@ public class ManagerProfileBusiness {
 		return profilesDto;
 	}
 
+
+	public ManagerProfileDto addManagerProfile(String managerProfileName, String description) throws BusinessException {
+
+		if (managerProfileName.isEmpty()) {
+			throw new BusinessException("El perfil de gestor debe contener un nombre.");
+		}
+
+		if (description.isEmpty()) {
+			throw new BusinessException("El perfil de gestor debe contener una descripción.");
+		}
+
+		ManagerProfileEntity managerProfileEntity = new ManagerProfileEntity();
+
+		managerProfileEntity.setName(managerProfileName);
+		managerProfileEntity.setDescription(description);
+
+		managerProfileEntity = managerProfileService.createManagerProfile(managerProfileEntity);
+
+		ManagerProfileDto managerProfileDto = this.transformEntityToDto(managerProfileEntity);
+
+		return managerProfileDto;
+	}
+
+	protected ManagerProfileDto transformEntityToDto(ManagerProfileEntity managerProfileEntity) {
+
+		ManagerProfileDto managerProfileDto = new ManagerProfileDto();
+		
+		managerProfileDto.setId(managerProfileEntity.getId());
+		managerProfileDto.setName(managerProfileEntity.getName());
+		managerProfileDto.setDescription(managerProfileEntity.getDescription());
+		
+		return managerProfileDto;
+	}
+
+	public ManagerProfileDto deleteManagerProfile(Long profileId) throws BusinessException {
+
+		ManagerProfileDto managerProfileDto = null;
+
+		// verify manager profile exists
+		ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(profileId);
+		if (!(managerProfileEntity instanceof ManagerProfileEntity)) {
+			throw new BusinessException("Manager profile not found.");
+		}
+
+		try {
+			managerProfileService.deleteById(profileId);
+		} catch (Exception e) {
+			throw new BusinessException("The manager profile could not be updated.");
+		}
+
+		return managerProfileDto;
+	}
+
+	public ManagerProfileDto updateManagerProfile(Long managerProfileId, String managerProfileName, String description) throws BusinessException {
+
+		if (managerProfileId <= 0) {
+			throw new BusinessException("El perfil de gestor debe contener un id.");
+		}
+
+		if (managerProfileName.isEmpty()) {
+			throw new BusinessException("El perfil de gestor debe contener un nombre.");
+		}
+
+		if (description.isEmpty()) {
+			throw new BusinessException("El perfil de gestor debe contener una descripción.");
+		}
+
+		// verify manager profile exists
+		ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(managerProfileId);
+		if (!(managerProfileEntity instanceof ManagerProfileEntity)) {
+			throw new BusinessException("Manager profile not found.");
+		}
+
+		managerProfileEntity.setName(managerProfileName);
+		managerProfileEntity.setDescription(description);
+
+		managerProfileEntity = managerProfileService.updateManagerProfile(managerProfileEntity);
+
+		ManagerProfileDto managerProfileDto = this.transformEntityToDto(managerProfileEntity);
+
+		return managerProfileDto;
+	}
+
 }

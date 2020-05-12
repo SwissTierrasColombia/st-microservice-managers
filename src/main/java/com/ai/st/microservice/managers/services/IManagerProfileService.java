@@ -14,4 +14,8 @@ public interface IManagerProfileService {
 
 	public List<ManagerProfileEntity> getAllProfiles();
 
+	public ManagerProfileEntity updateManagerProfile(ManagerProfileEntity managerProfileEntity);
+
+	public void deleteById(Long profileId);
+
 }

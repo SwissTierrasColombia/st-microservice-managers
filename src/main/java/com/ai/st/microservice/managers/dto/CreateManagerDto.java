@@ -1,12 +1,11 @@
 package com.ai.st.microservice.managers.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(value = "ManagerDto", description = "Create Manger Dto")
+@ApiModel(value = "CreateManagerDto", description = "Create Manger Dto")
 public class CreateManagerDto implements Serializable {
 
 	private static final long serialVersionUID = 8630363838327832666L;

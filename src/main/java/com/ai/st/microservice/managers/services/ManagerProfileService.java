@@ -37,4 +37,14 @@ public class ManagerProfileService implements IManagerProfileService {
 		return managerProfileRepository.findAll();
 	}
 
+	@Override
+	public ManagerProfileEntity updateManagerProfile(ManagerProfileEntity managerProfileEntity) {
+		return managerProfileRepository.save(managerProfileEntity);
+	}
+
+	@Override
+	public void deleteById(Long profileId) {
+		managerProfileRepository.deleteById(profileId);
+	}
+
 }
