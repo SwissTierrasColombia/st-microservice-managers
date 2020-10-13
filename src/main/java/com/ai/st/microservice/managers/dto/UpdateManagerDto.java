@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class UpdateManagerDto implements Serializable {
 
 	private static final long serialVersionUID = 8630363838327832666L;
-	
+
 	@ApiModelProperty(required = true, notes = "Manager ID")
 	private Long id;
 
@@ -18,6 +18,9 @@ public class UpdateManagerDto implements Serializable {
 
 	@ApiModelProperty(required = true, notes = "Manager tax identification number")
 	private String taxIdentificationNumber;
+
+	@ApiModelProperty(required = false, notes = "Manager Alias")
+	private String alias;
 
 	public UpdateManagerDto() {
 
@@ -45,6 +48,14 @@ public class UpdateManagerDto implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 
 }

@@ -16,6 +16,9 @@ public class ManagerDto implements Serializable {
 
 	@ApiModelProperty(required = true, notes = "Manager name")
 	private String name;
+	
+	@ApiModelProperty(required = false, notes = "Manager Alias")
+	private String alias;
 
 	@ApiModelProperty(required = true, notes = "Manager tax identification number")
 	private String taxIdentificationNumber;
@@ -68,6 +71,14 @@ public class ManagerDto implements Serializable {
 
 	public void setManagerState(ManagerStateDto managerState) {
 		this.managerState = managerState;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 
 }
