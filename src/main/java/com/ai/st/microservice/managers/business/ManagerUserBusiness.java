@@ -30,6 +30,7 @@ public class ManagerUserBusiness {
 
 			managerDto = new ManagerDto();
 			managerDto.setId(managerEntity.getId());
+			managerDto.setAlias(managerEntity.getAlias());
 			managerDto.setName(managerEntity.getName());
 			managerDto.setTaxIdentificationNumber(managerEntity.getTaxIdentificationNumber());
 			managerDto.setCreatedAt(managerEntity.getCreatedAt());
