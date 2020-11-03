@@ -76,8 +76,9 @@ public class StMicroserviceManagersApplicationStartup implements ApplicationList
 						.getManagerStateById(ManagerStateBusiness.MANAGER_STATE_ACTIVE);
 
 				ManagerEntity managerIGAC = new ManagerEntity();
-				managerIGAC.setName("IGAC");
-				managerIGAC.setTaxIdentificationNumber("000-1");
+				managerIGAC.setName("INSTITUTO GEOGRÁFICO AGUSTÍN CODAZZI");
+				managerIGAC.setAlias("IGAC");
+				managerIGAC.setTaxIdentificationNumber("8999990049");
 				managerIGAC.setCreatedAt(new Date());
 				managerIGAC.setManagerState(stateActive);
 				managerIGAC = managerService.createManager(managerIGAC);
