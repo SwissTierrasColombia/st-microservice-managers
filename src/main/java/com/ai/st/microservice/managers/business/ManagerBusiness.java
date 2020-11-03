@@ -49,17 +49,8 @@ public class ManagerBusiness {
 		}
 
 		for (ManagerEntity managerEntity : listManagersEntity) {
-
-			ManagerDto managerDto = new ManagerDto();
-			managerDto.setId(managerEntity.getId());
-			managerDto.setName(managerEntity.getName());
-			managerDto.setTaxIdentificationNumber(managerEntity.getTaxIdentificationNumber());
-			managerDto.setCreatedAt(managerEntity.getCreatedAt());
-			managerDto.setManagerState(new ManagerStateDto(managerEntity.getManagerState().getId(),
-					managerEntity.getManagerState().getName()));
-
+			ManagerDto managerDto = transformEntityToDto(managerEntity);
 			listManagersDto.add(managerDto);
-
 		}
 
 		return listManagersDto;
@@ -71,13 +62,7 @@ public class ManagerBusiness {
 
 		ManagerEntity managerEntity = managerService.getManagerById(id);
 		if (managerEntity instanceof ManagerEntity) {
-			managerDto = new ManagerDto();
-			managerDto.setId(managerEntity.getId());
-			managerDto.setName(managerEntity.getName());
-			managerDto.setTaxIdentificationNumber(managerEntity.getTaxIdentificationNumber());
-			managerDto.setCreatedAt(managerEntity.getCreatedAt());
-			managerDto.setManagerState(new ManagerStateDto(managerEntity.getManagerState().getId(),
-					managerEntity.getManagerState().getName()));
+			managerDto = transformEntityToDto(managerEntity);
 		}
 
 		return managerDto;
@@ -195,7 +180,7 @@ public class ManagerBusiness {
 		return listUsersDto;
 	}
 
-	public ManagerDto addManager(String name, String taxIdentification) throws BusinessException {
+	public ManagerDto addManager(String name, String taxIdentification, String alias) throws BusinessException {
 
 		if (name.isEmpty()) {
 			throw new BusinessException("El gestor debe contener un nombre.");
@@ -210,10 +195,14 @@ public class ManagerBusiness {
 
 		ManagerEntity managerEntity = new ManagerEntity();
 
-		managerEntity.setName(name);
+		managerEntity.setName(name.toUpperCase());
 		managerEntity.setCreatedAt(new Date());
 		managerEntity.setTaxIdentificationNumber(taxIdentification);
 		managerEntity.setManagerState(managerState);
+
+		if (alias != null) {
+			managerEntity.setAlias(alias);
+		}
 
 		managerEntity = managerService.createManager(managerEntity);
 
@@ -226,6 +215,7 @@ public class ManagerBusiness {
 
 		ManagerDto managerDto = new ManagerDto();
 		managerDto.setId(managerEntity.getId());
+		managerDto.setAlias(managerEntity.getAlias());
 		managerDto.setCreatedAt(managerEntity.getCreatedAt());
 		managerDto.setName(managerEntity.getName());
 		managerDto.setTaxIdentificationNumber(managerEntity.getTaxIdentificationNumber());
@@ -246,14 +236,14 @@ public class ManagerBusiness {
 		// verify manager exists
 		ManagerEntity managerEntity = managerService.getManagerById(managerId);
 		if (!(managerEntity instanceof ManagerEntity)) {
-			throw new BusinessException("Manager not found.");
+			throw new BusinessException("El gestor no existe.");
 		}
 
 		// set manager state
 		ManagerStateEntity managerStateEntity = managerStateService
 				.getManagerStateById(ManagerStateBusiness.MANAGER_STATE_ACTIVE);
 		if (managerStateEntity == null) {
-			throw new BusinessException("Manager state not found.");
+			throw new BusinessException("El estado no existe.");
 		}
 
 		managerEntity.setManagerState(managerStateEntity);
@@ -262,7 +252,7 @@ public class ManagerBusiness {
 			ManagerEntity managerUpdatedEntity = managerService.updateManager(managerEntity);
 			managerDto = this.transformEntityToDto(managerUpdatedEntity);
 		} catch (Exception e) {
-			throw new BusinessException("The task could not be updated.");
+			throw new BusinessException("No se ha podido activar el gestor.");
 		}
 
 		return managerDto;
@@ -275,14 +265,14 @@ public class ManagerBusiness {
 		// verify manager exists
 		ManagerEntity managerEntity = managerService.getManagerById(managerId);
 		if (!(managerEntity instanceof ManagerEntity)) {
-			throw new BusinessException("Manager not found.");
+			throw new BusinessException("El gestor no existe.");
 		}
 
 		// set manager state
 		ManagerStateEntity managerStateEntity = managerStateService
 				.getManagerStateById(ManagerStateBusiness.MANAGER_STATE_INACTIVE);
 		if (managerStateEntity == null) {
-			throw new BusinessException("Manager state not found.");
+			throw new BusinessException("El estado no existe.");
 		}
 
 		managerEntity.setManagerState(managerStateEntity);
@@ -291,13 +281,14 @@ public class ManagerBusiness {
 			ManagerEntity managerUpdatedEntity = managerService.updateManager(managerEntity);
 			managerDto = this.transformEntityToDto(managerUpdatedEntity);
 		} catch (Exception e) {
-			throw new BusinessException("The task could not be updated.");
+			throw new BusinessException("No se ha podido desactivar el gestor.");
 		}
 
 		return managerDto;
 	}
 
-	public ManagerDto updateManager(Long managerId, String name, String taxIdentification) throws BusinessException {
+	public ManagerDto updateManager(Long managerId, String name, String taxIdentification, String alias)
+			throws BusinessException {
 
 		if (managerId <= 0) {
 			throw new BusinessException("El gestor debe contener un id.");
@@ -314,12 +305,18 @@ public class ManagerBusiness {
 		// verify manager exists
 		ManagerEntity managerEntity = managerService.getManagerById(managerId);
 		if (!(managerEntity instanceof ManagerEntity)) {
-			throw new BusinessException("Manager not found.");
+			throw new BusinessException("El gestor no existe.");
 		}
 
-		managerEntity.setName(name);
+		managerEntity.setName(name.toUpperCase());
 		managerEntity.setCreatedAt(new Date());
 		managerEntity.setTaxIdentificationNumber(taxIdentification);
+
+		if (alias != null) {
+			managerEntity.setAlias(alias);
+		} else {
+			managerEntity.setAlias(null);
+		}
 
 		managerEntity = managerService.updateManager(managerEntity);
 

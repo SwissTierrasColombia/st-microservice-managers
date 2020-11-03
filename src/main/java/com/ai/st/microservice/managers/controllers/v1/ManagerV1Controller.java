@@ -153,7 +153,7 @@ public class ManagerV1Controller {
 				throw new InputValidationException("El identificador de impuesto es requerido.");
 			}
 
-			responseDto = managerBusiness.addManager(managerName, taxIdentification);
+			responseDto = managerBusiness.addManager(managerName, taxIdentification, requestCreateManager.getAlias());
 			httpStatus = HttpStatus.CREATED;
 
 		} catch (InputValidationException e) {
@@ -255,19 +255,20 @@ public class ManagerV1Controller {
 				throw new InputValidationException("El identificador de impuesto es requerido.");
 			}
 
-			responseDto = managerBusiness.updateManager(managerId, managerName, taxIdentification);
-			httpStatus = HttpStatus.CREATED;
+			responseDto = managerBusiness.updateManager(managerId, managerName, taxIdentification,
+					requestUpdateManager.getAlias());
+			httpStatus = HttpStatus.OK;
 
 		} catch (InputValidationException e) {
-			log.error("Error ManagerV1Controller@createManager#Validation ---> " + e.getMessage());
+			log.error("Error ManagerV1Controller@updateManager#Validation ---> " + e.getMessage());
 			httpStatus = HttpStatus.BAD_REQUEST;
 			responseDto = new ErrorDto(e.getMessage(), 1);
 		} catch (BusinessException e) {
-			log.error("Error ManagerV1Controller@createManager#Business ---> " + e.getMessage());
+			log.error("Error ManagerV1Controller@updateManager#Business ---> " + e.getMessage());
 			httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
 			responseDto = new ErrorDto(e.getMessage(), 2);
 		} catch (Exception e) {
-			log.error("Error ManagerV1Controller@createManager#General ---> " + e.getMessage());
+			log.error("Error ManagerV1Controller@updateManager#General ---> " + e.getMessage());
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 			responseDto = new ErrorDto(e.getMessage(), 3);
 		}
