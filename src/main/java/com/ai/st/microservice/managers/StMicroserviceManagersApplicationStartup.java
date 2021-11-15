@@ -21,98 +21,98 @@ import com.ai.st.microservice.managers.services.IManagerStateService;
 @Component
 public class StMicroserviceManagersApplicationStartup implements ApplicationListener<ContextRefreshedEvent> {
 
-	private static final Logger log = LoggerFactory.getLogger(StMicroserviceManagersApplicationStartup.class);
+    private static final Logger log = LoggerFactory.getLogger(StMicroserviceManagersApplicationStartup.class);
 
-	@Autowired
-	private IManagerStateService managerStateService;
+    @Autowired
+    private IManagerStateService managerStateService;
 
-	@Autowired
-	private IManagerService managerService;
+    @Autowired
+    private IManagerService managerService;
 
-	@Autowired
-	private IManagerProfileService managerProfileService;
+    @Autowired
+    private IManagerProfileService managerProfileService;
 
-	@Override
-	public void onApplicationEvent(ContextRefreshedEvent event) {
-		log.info("ST - Loading Domains ... ");
-		this.initManagerStates();
-		this.initProfiles();
-		this.initManagers();
-	}
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        log.info("ST - Loading Domains ... ");
+        this.initManagerStates();
+        this.initProfiles();
+        this.initManagers();
+    }
 
-	public void initManagerStates() {
+    public void initManagerStates() {
 
-		Long countStates = managerStateService.getCount();
-		if (countStates == 0) {
+        Long countStates = managerStateService.getCount();
+        if (countStates == 0) {
 
-			try {
+            try {
 
-				ManagerStateEntity stateActive = new ManagerStateEntity();
-				stateActive.setId(ManagerStateBusiness.MANAGER_STATE_ACTIVE);
-				stateActive.setName("ACTIVO");
-				managerStateService.createManagerState(stateActive);
+                ManagerStateEntity stateActive = new ManagerStateEntity();
+                stateActive.setId(ManagerStateBusiness.MANAGER_STATE_ACTIVE);
+                stateActive.setName("ACTIVO");
+                managerStateService.createManagerState(stateActive);
 
-				ManagerStateEntity stateInactive = new ManagerStateEntity();
-				stateInactive.setId(ManagerStateBusiness.MANAGER_STATE_INACTIVE);
-				stateInactive.setName("INACTIVO");
-				managerStateService.createManagerState(stateInactive);
+                ManagerStateEntity stateInactive = new ManagerStateEntity();
+                stateInactive.setId(ManagerStateBusiness.MANAGER_STATE_INACTIVE);
+                stateInactive.setName("INACTIVO");
+                managerStateService.createManagerState(stateInactive);
 
-				log.info("The domains 'managers states' have been loaded!");
-			} catch (Exception e) {
-				log.error("Failed to load 'managers states' domains");
-			}
+                log.info("The domains 'managers states' have been loaded!");
+            } catch (Exception e) {
+                log.error("Failed to load 'managers states' domains");
+            }
 
-		}
+        }
 
-	}
+    }
 
-	public void initManagers() {
-		Long countManagers = managerService.getCount();
-		if (countManagers == 0) {
+    public void initManagers() {
+        Long countManagers = managerService.getCount();
+        if (countManagers == 0) {
 
-			try {
+            try {
 
-				ManagerStateEntity stateActive = managerStateService
-						.getManagerStateById(ManagerStateBusiness.MANAGER_STATE_ACTIVE);
+                ManagerStateEntity stateActive = managerStateService
+                        .getManagerStateById(ManagerStateBusiness.MANAGER_STATE_ACTIVE);
 
-				ManagerEntity managerIGAC = new ManagerEntity();
-				managerIGAC.setName("INSTITUTO GEOGRÁFICO AGUSTÍN CODAZZI");
-				managerIGAC.setAlias("IGAC");
-				managerIGAC.setTaxIdentificationNumber("8999990049");
-				managerIGAC.setCreatedAt(new Date());
-				managerIGAC.setManagerState(stateActive);
-				managerIGAC = managerService.createManager(managerIGAC);
+                ManagerEntity managerIGAC = new ManagerEntity();
+                managerIGAC.setName("INSTITUTO GEOGRÁFICO AGUSTÍN CODAZZI");
+                managerIGAC.setAlias("IGAC");
+                managerIGAC.setTaxIdentificationNumber("8999990049");
+                managerIGAC.setCreatedAt(new Date());
+                managerIGAC.setManagerState(stateActive);
+                managerService.createManager(managerIGAC);
 
-				log.info("The domains 'managers' have been loaded!");
-			} catch (Exception e) {
-				log.error("Failed to load 'managers' domains");
-			}
+                log.info("The domains 'managers' have been loaded!");
+            } catch (Exception e) {
+                log.error("Failed to load 'managers' domains");
+            }
 
-		}
-	}
+        }
+    }
 
-	public void initProfiles() {
-		Long countProfiles = managerProfileService.getCount();
-		if (countProfiles == 0) {
+    public void initProfiles() {
+        Long countProfiles = managerProfileService.getCount();
+        if (countProfiles == 0) {
 
-			try {
+            try {
 
-				ManagerProfileEntity profileDirector = new ManagerProfileEntity();
-				profileDirector.setId(ManagerProfileBusiness.MANAGER_PROFILE_DIRECTOR);
-				profileDirector.setName("DIRECTOR");
-				managerProfileService.createManagerProfile(profileDirector);
+                ManagerProfileEntity profileDirector = new ManagerProfileEntity();
+                profileDirector.setId(ManagerProfileBusiness.MANAGER_PROFILE_DIRECTOR);
+                profileDirector.setName("DIRECTOR");
+                managerProfileService.createManagerProfile(profileDirector);
 
-				ManagerProfileEntity profileIntegrator = new ManagerProfileEntity();
-				profileIntegrator.setId(ManagerProfileBusiness.MANAGER_PROFILE_INTEGRATOR);
-				profileIntegrator.setName("INTEGRADOR");
-				managerProfileService.createManagerProfile(profileIntegrator);
+                ManagerProfileEntity profileSinic = new ManagerProfileEntity();
+                profileSinic.setId(ManagerProfileBusiness.MANAGER_PROFILE_SINIC);
+                profileSinic.setName("SINIC");
+                managerProfileService.createManagerProfile(profileSinic);
 
-				log.info("The domains 'profiles' have been loaded!");
-			} catch (Exception e) {
-				log.error("Failed to load 'profiles' domains");
-			}
+                log.info("The domains 'profiles' have been loaded!");
+            } catch (Exception e) {
+                log.error("Failed to load 'profiles' domains");
+            }
 
-		}
-	}
+        }
+    }
 
 }

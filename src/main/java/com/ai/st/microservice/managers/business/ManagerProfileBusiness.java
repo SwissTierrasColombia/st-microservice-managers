@@ -23,7 +23,7 @@ public class ManagerProfileBusiness {
 	private IManagerUserService managerUserService;
 
 	public static final Long MANAGER_PROFILE_DIRECTOR = (long) 1;
-	public static final Long MANAGER_PROFILE_INTEGRATOR = (long) 2;
+	public static final Long MANAGER_PROFILE_SINIC = (long) 2;
 
 	public List<ManagerProfileDto> getProfiles() throws BusinessException {
 
