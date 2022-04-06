@@ -1,4 +1,4 @@
-package com.ai.st.microservice.managers.services;
+package com.ai.st.microservice.managers.models.services;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.ai.st.microservice.managers.entities.ManagerEntity;
 import com.ai.st.microservice.managers.entities.ManagerProfileEntity;
 import com.ai.st.microservice.managers.entities.ManagerUserEntity;
-import com.ai.st.microservice.managers.repositories.ManagerUserRepository;
+import com.ai.st.microservice.managers.models.repositories.ManagerUserRepository;
 
 @Service
 public class ManagerUserService implements IManagerUserService {

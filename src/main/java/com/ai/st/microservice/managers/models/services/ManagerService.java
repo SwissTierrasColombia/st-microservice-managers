@@ -1,4 +1,4 @@
-package com.ai.st.microservice.managers.services;
+package com.ai.st.microservice.managers.models.services;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ai.st.microservice.managers.entities.ManagerEntity;
-import com.ai.st.microservice.managers.repositories.ManagerRepository;
+import com.ai.st.microservice.managers.models.repositories.ManagerRepository;
 
 @Service
 public class ManagerService implements IManagerService {

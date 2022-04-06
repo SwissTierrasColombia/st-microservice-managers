@@ -13,8 +13,8 @@ import com.ai.st.microservice.managers.dto.ManagerProfileDto;
 import com.ai.st.microservice.managers.entities.ManagerProfileEntity;
 import com.ai.st.microservice.managers.entities.ManagerUserEntity;
 import com.ai.st.microservice.managers.exceptions.BusinessException;
-import com.ai.st.microservice.managers.services.IManagerProfileService;
-import com.ai.st.microservice.managers.services.IManagerUserService;
+import com.ai.st.microservice.managers.models.services.IManagerProfileService;
+import com.ai.st.microservice.managers.models.services.IManagerUserService;
 
 @Component
 public class ManagerProfileBusiness {

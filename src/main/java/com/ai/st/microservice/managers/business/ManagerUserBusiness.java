@@ -10,7 +10,7 @@ import com.ai.st.microservice.managers.dto.ManagerStateDto;
 import com.ai.st.microservice.managers.entities.ManagerEntity;
 import com.ai.st.microservice.managers.entities.ManagerUserEntity;
 import com.ai.st.microservice.managers.exceptions.BusinessException;
-import com.ai.st.microservice.managers.services.IManagerUserService;
+import com.ai.st.microservice.managers.models.services.IManagerUserService;
 
 @Component
 public class ManagerUserBusiness {
