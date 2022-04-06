@@ -10,31 +10,31 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(value = "ManagerUserDto", description = "Manager User Dto")
 public class ManagerUserDto implements Serializable {
 
-	private static final long serialVersionUID = 130761780294600808L;
+    private static final long serialVersionUID = 130761780294600808L;
 
-	@ApiModelProperty(required = true, notes = "User code")
-	private Long userCode;
+    @ApiModelProperty(required = true, notes = "User code")
+    private Long userCode;
 
-	private List<ManagerProfileDto> profiles;
+    private List<ManagerProfileDto> profiles;
 
-	public ManagerUserDto() {
-		this.profiles = new ArrayList<ManagerProfileDto>();
-	}
+    public ManagerUserDto() {
+        this.profiles = new ArrayList<ManagerProfileDto>();
+    }
 
-	public Long getUserCode() {
-		return userCode;
-	}
+    public Long getUserCode() {
+        return userCode;
+    }
 
-	public void setUserCode(Long userCode) {
-		this.userCode = userCode;
-	}
+    public void setUserCode(Long userCode) {
+        this.userCode = userCode;
+    }
 
-	public List<ManagerProfileDto> getProfiles() {
-		return profiles;
-	}
+    public List<ManagerProfileDto> getProfiles() {
+        return profiles;
+    }
 
-	public void setProfiles(List<ManagerProfileDto> profiles) {
-		this.profiles = profiles;
-	}
+    public void setProfiles(List<ManagerProfileDto> profiles) {
+        this.profiles = profiles;
+    }
 
 }

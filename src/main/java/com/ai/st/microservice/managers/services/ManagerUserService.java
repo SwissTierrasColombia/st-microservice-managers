@@ -15,41 +15,41 @@ import com.ai.st.microservice.managers.repositories.ManagerUserRepository;
 @Service
 public class ManagerUserService implements IManagerUserService {
 
-	@Autowired
-	private ManagerUserRepository managerUserRepository;
+    @Autowired
+    private ManagerUserRepository managerUserRepository;
 
-	@Override
-	@Transactional
-	public ManagerUserEntity createManagerUser(ManagerUserEntity managerUserEntity) {
-		return managerUserRepository.save(managerUserEntity);
-	}
+    @Override
+    @Transactional
+    public ManagerUserEntity createManagerUser(ManagerUserEntity managerUserEntity) {
+        return managerUserRepository.save(managerUserEntity);
+    }
 
-	@Override
-	public List<ManagerUserEntity> getManagersUsersByUserCode(Long userCode) {
-		return managerUserRepository.getUsersByUserCode(userCode);
-	}
+    @Override
+    public List<ManagerUserEntity> getManagersUsersByUserCode(Long userCode) {
+        return managerUserRepository.getUsersByUserCode(userCode);
+    }
 
-	@Override
-	public ManagerUserEntity getManagerUserByUserCodeAndManagerAndProfile(Long userCode, ManagerEntity managerEntity,
-			ManagerProfileEntity profileEntity) {
-		return managerUserRepository.findByUserCodeAndManagerAndManagerProfile(userCode, managerEntity, profileEntity);
-	}
+    @Override
+    public ManagerUserEntity getManagerUserByUserCodeAndManagerAndProfile(Long userCode, ManagerEntity managerEntity,
+            ManagerProfileEntity profileEntity) {
+        return managerUserRepository.findByUserCodeAndManagerAndManagerProfile(userCode, managerEntity, profileEntity);
+    }
 
-	@Override
-	public List<ManagerUserEntity> getManagersUsersByManagerAndProfiles(ManagerEntity managerEntity,
-			List<ManagerProfileEntity> profiles) {
-		return managerUserRepository.findByManagerAndManagerProfileIn(managerEntity, profiles);
-	}
+    @Override
+    public List<ManagerUserEntity> getManagersUsersByManagerAndProfiles(ManagerEntity managerEntity,
+            List<ManagerProfileEntity> profiles) {
+        return managerUserRepository.findByManagerAndManagerProfileIn(managerEntity, profiles);
+    }
 
-	@Override
-	public List<ManagerUserEntity> getManagersUsersByManager(ManagerEntity managerEntity) {
-		return managerUserRepository.findByManager(managerEntity);
-	}
+    @Override
+    public List<ManagerUserEntity> getManagersUsersByManager(ManagerEntity managerEntity) {
+        return managerUserRepository.findByManager(managerEntity);
+    }
 
-	@Override
-	@Transactional
-	public void deleteManagerUserById(Long id) {
-		managerUserRepository.deleteById(id);
-	}
+    @Override
+    @Transactional
+    public void deleteManagerUserById(Long id) {
+        managerUserRepository.deleteById(id);
+    }
 
 }

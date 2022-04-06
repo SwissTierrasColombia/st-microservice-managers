@@ -8,7 +8,7 @@ import com.ai.st.microservice.managers.entities.ManagerStateEntity;
 
 public interface ManagerStateRepository extends CrudRepository<ManagerStateEntity, Long> {
 
-	@Override
-	List<ManagerStateEntity> findAll();
+    @Override
+    List<ManagerStateEntity> findAll();
 
 }

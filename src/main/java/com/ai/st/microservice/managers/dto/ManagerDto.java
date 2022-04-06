@@ -9,76 +9,76 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(value = "ManagerDto", description = "Manger Dto")
 public class ManagerDto implements Serializable {
 
-	private static final long serialVersionUID = 8630363838327832665L;
+    private static final long serialVersionUID = 8630363838327832665L;
 
-	@ApiModelProperty(required = true, notes = "Manager ID")
-	private Long id;
+    @ApiModelProperty(required = true, notes = "Manager ID")
+    private Long id;
 
-	@ApiModelProperty(required = true, notes = "Manager name")
-	private String name;
-	
-	@ApiModelProperty(required = false, notes = "Manager Alias")
-	private String alias;
+    @ApiModelProperty(required = true, notes = "Manager name")
+    private String name;
 
-	@ApiModelProperty(required = true, notes = "Manager tax identification number")
-	private String taxIdentificationNumber;
+    @ApiModelProperty(required = false, notes = "Manager Alias")
+    private String alias;
 
-	@ApiModelProperty(required = true, notes = "Date creation")
-	private Date createdAt;
+    @ApiModelProperty(required = true, notes = "Manager tax identification number")
+    private String taxIdentificationNumber;
 
-	@ApiModelProperty(required = true, notes = "Manager State")
-	private ManagerStateDto managerState;
+    @ApiModelProperty(required = true, notes = "Date creation")
+    private Date createdAt;
 
-	public ManagerDto() {
+    @ApiModelProperty(required = true, notes = "Manager State")
+    private ManagerStateDto managerState;
 
-	}
+    public ManagerDto() {
 
-	public Long getId() {
-		return id;
-	}
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getTaxIdentificationNumber() {
-		return taxIdentificationNumber;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setTaxIdentificationNumber(String taxIdentificationNumber) {
-		this.taxIdentificationNumber = taxIdentificationNumber;
-	}
+    public String getTaxIdentificationNumber() {
+        return taxIdentificationNumber;
+    }
 
-	public Date getCreatedAt() {
-		return createdAt;
-	}
+    public void setTaxIdentificationNumber(String taxIdentificationNumber) {
+        this.taxIdentificationNumber = taxIdentificationNumber;
+    }
 
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
+    public Date getCreatedAt() {
+        return createdAt;
+    }
 
-	public ManagerStateDto getManagerState() {
-		return managerState;
-	}
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	public void setManagerState(ManagerStateDto managerState) {
-		this.managerState = managerState;
-	}
+    public ManagerStateDto getManagerState() {
+        return managerState;
+    }
 
-	public String getAlias() {
-		return alias;
-	}
+    public void setManagerState(ManagerStateDto managerState) {
+        this.managerState = managerState;
+    }
 
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 
 }

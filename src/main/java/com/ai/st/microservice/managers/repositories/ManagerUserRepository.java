@@ -10,14 +10,14 @@ import com.ai.st.microservice.managers.entities.ManagerUserEntity;
 
 public interface ManagerUserRepository extends CrudRepository<ManagerUserEntity, Long> {
 
-	List<ManagerUserEntity> getUsersByUserCode(Long userCode);
+    List<ManagerUserEntity> getUsersByUserCode(Long userCode);
 
-	ManagerUserEntity findByUserCodeAndManagerAndManagerProfile(Long userCode, ManagerEntity manager,
-			ManagerProfileEntity managerProfile);
+    ManagerUserEntity findByUserCodeAndManagerAndManagerProfile(Long userCode, ManagerEntity manager,
+            ManagerProfileEntity managerProfile);
 
-	List<ManagerUserEntity> findByManagerAndManagerProfileIn(ManagerEntity manager,
-			List<ManagerProfileEntity> profiles);
+    List<ManagerUserEntity> findByManagerAndManagerProfileIn(ManagerEntity manager,
+            List<ManagerProfileEntity> profiles);
 
-	List<ManagerUserEntity> findByManager(ManagerEntity manager);
+    List<ManagerUserEntity> findByManager(ManagerEntity manager);
 
 }

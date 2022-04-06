@@ -8,7 +8,7 @@ import com.ai.st.microservice.managers.entities.ManagerProfileEntity;
 
 public interface ManagerProfileRepository extends CrudRepository<ManagerProfileEntity, Long> {
 
-	@Override
-	List<ManagerProfileEntity> findAll();
+    @Override
+    List<ManagerProfileEntity> findAll();
 
 }

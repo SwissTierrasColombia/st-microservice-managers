@@ -13,38 +13,38 @@ import com.ai.st.microservice.managers.repositories.ManagerRepository;
 @Service
 public class ManagerService implements IManagerService {
 
-	@Autowired
-	private ManagerRepository managerRepository;
+    @Autowired
+    private ManagerRepository managerRepository;
 
-	@Override
-	@Transactional
-	public ManagerEntity createManager(ManagerEntity manager) {
-		return managerRepository.save(manager);
-	}
+    @Override
+    @Transactional
+    public ManagerEntity createManager(ManagerEntity manager) {
+        return managerRepository.save(manager);
+    }
 
-	@Override
-	public Long getCount() {
-		return managerRepository.count();
-	}
+    @Override
+    public Long getCount() {
+        return managerRepository.count();
+    }
 
-	@Override
-	public List<ManagerEntity> getAllManagers() {
-		return managerRepository.findAll();
-	}
+    @Override
+    public List<ManagerEntity> getAllManagers() {
+        return managerRepository.findAll();
+    }
 
-	@Override
-	public List<ManagerEntity> getManagersByStateId(Long managerStateId) {
-		return managerRepository.getManagersByStateId(managerStateId);
-	}
+    @Override
+    public List<ManagerEntity> getManagersByStateId(Long managerStateId) {
+        return managerRepository.getManagersByStateId(managerStateId);
+    }
 
-	@Override
-	public ManagerEntity getManagerById(Long id) {
-		return managerRepository.findById(id).orElse(null);
-	}
+    @Override
+    public ManagerEntity getManagerById(Long id) {
+        return managerRepository.findById(id).orElse(null);
+    }
 
-	@Override
-	public ManagerEntity updateManager(ManagerEntity manager) {
-		return managerRepository.save(manager);
-	}
+    @Override
+    public ManagerEntity updateManager(ManagerEntity manager) {
+        return managerRepository.save(manager);
+    }
 
 }

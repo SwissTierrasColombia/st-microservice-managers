@@ -6,16 +6,16 @@ import com.ai.st.microservice.managers.entities.ManagerProfileEntity;
 
 public interface IManagerProfileService {
 
-	public ManagerProfileEntity createManagerProfile(ManagerProfileEntity managerProfileEntity);
+    ManagerProfileEntity createManagerProfile(ManagerProfileEntity managerProfileEntity);
 
-	public Long getCount();
+    Long getCount();
 
-	public ManagerProfileEntity getManagerProfileById(Long id);
+    ManagerProfileEntity getManagerProfileById(Long id);
 
-	public List<ManagerProfileEntity> getAllProfiles();
+    List<ManagerProfileEntity> getAllProfiles();
 
-	public ManagerProfileEntity updateManagerProfile(ManagerProfileEntity managerProfileEntity);
+    ManagerProfileEntity updateManagerProfile(ManagerProfileEntity managerProfileEntity);
 
-	public void deleteById(Long profileId);
+    void deleteById(Long profileId);
 
 }

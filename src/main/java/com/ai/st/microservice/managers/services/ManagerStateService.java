@@ -13,28 +13,28 @@ import com.ai.st.microservice.managers.repositories.ManagerStateRepository;
 @Service
 public class ManagerStateService implements IManagerStateService {
 
-	@Autowired
-	private ManagerStateRepository managerStateRepository;
+    @Autowired
+    private ManagerStateRepository managerStateRepository;
 
-	@Override
-	@Transactional
-	public ManagerStateEntity createManagerState(ManagerStateEntity managerState) {
-		return managerStateRepository.save(managerState);
-	}
+    @Override
+    @Transactional
+    public ManagerStateEntity createManagerState(ManagerStateEntity managerState) {
+        return managerStateRepository.save(managerState);
+    }
 
-	@Override
-	public List<ManagerStateEntity> getAllManagerStates() {
-		return managerStateRepository.findAll();
-	}
+    @Override
+    public List<ManagerStateEntity> getAllManagerStates() {
+        return managerStateRepository.findAll();
+    }
 
-	@Override
-	public Long getCount() {
-		return managerStateRepository.count();
-	}
+    @Override
+    public Long getCount() {
+        return managerStateRepository.count();
+    }
 
-	@Override
-	public ManagerStateEntity getManagerStateById(Long id) {
-		return managerStateRepository.findById(id).orElse(null);
-	}
+    @Override
+    public ManagerStateEntity getManagerStateById(Long id) {
+        return managerStateRepository.findById(id).orElse(null);
+    }
 
 }
