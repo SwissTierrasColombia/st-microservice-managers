@@ -58,4 +58,9 @@ public class UpdateManagerDto implements Serializable {
         this.alias = alias;
     }
 
+    @Override
+    public String toString() {
+        return "UpdateManagerDto{" + "id=" + id + ", name='" + name + '\'' + ", taxIdentificationNumber='"
+                + taxIdentificationNumber + '\'' + ", alias='" + alias + '\'' + '}';
+    }
 }

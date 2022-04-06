@@ -16,7 +16,7 @@ public class CreateManagerDto implements Serializable {
     @ApiModelProperty(required = true, notes = "Manager tax identification number")
     private String taxIdentificationNumber;
 
-    @ApiModelProperty(required = false, notes = "Manager Alias")
+    @ApiModelProperty(notes = "Manager Alias")
     private String alias;
 
     public CreateManagerDto() {
@@ -47,4 +47,9 @@ public class CreateManagerDto implements Serializable {
         this.alias = alias;
     }
 
+    @Override
+    public String toString() {
+        return "CreateManagerDto{" + "name='" + name + '\'' + ", taxIdentificationNumber='" + taxIdentificationNumber
+                + '\'' + ", alias='" + alias + '\'' + '}';
+    }
 }
