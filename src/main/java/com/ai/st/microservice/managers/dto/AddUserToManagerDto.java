@@ -47,4 +47,9 @@ public class AddUserToManagerDto implements Serializable {
         this.profileId = profileId;
     }
 
+    @Override
+    public String toString() {
+        return "AddUserToManagerDto{" + "userCode=" + userCode + ", managerId=" + managerId + ", profileId=" + profileId
+                + '}';
+    }
 }
