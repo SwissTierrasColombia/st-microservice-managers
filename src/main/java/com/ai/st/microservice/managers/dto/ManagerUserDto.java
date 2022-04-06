@@ -18,7 +18,7 @@ public class ManagerUserDto implements Serializable {
     private List<ManagerProfileDto> profiles;
 
     public ManagerUserDto() {
-        this.profiles = new ArrayList<ManagerProfileDto>();
+        this.profiles = new ArrayList<>();
     }
 
     public Long getUserCode() {

@@ -19,7 +19,7 @@ public class UpdateManagerDto implements Serializable {
     @ApiModelProperty(required = true, notes = "Manager tax identification number")
     private String taxIdentificationNumber;
 
-    @ApiModelProperty(required = false, notes = "Manager Alias")
+    @ApiModelProperty(notes = "Manager Alias")
     private String alias;
 
     public UpdateManagerDto() {

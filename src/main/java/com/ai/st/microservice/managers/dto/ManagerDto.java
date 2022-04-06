@@ -17,7 +17,7 @@ public class ManagerDto implements Serializable {
     @ApiModelProperty(required = true, notes = "Manager name")
     private String name;
 
-    @ApiModelProperty(required = false, notes = "Manager Alias")
+    @ApiModelProperty(notes = "Manager Alias")
     private String alias;
 
     @ApiModelProperty(required = true, notes = "Manager tax identification number")
