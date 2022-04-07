@@ -8,18 +8,18 @@ import com.ai.st.microservice.managers.entities.ManagerUserEntity;
 
 public interface IManagerUserService {
 
-    public ManagerUserEntity createManagerUser(ManagerUserEntity managerUserEntity);
+    ManagerUserEntity createManagerUser(ManagerUserEntity managerUserEntity);
 
-    public List<ManagerUserEntity> getManagersUsersByUserCode(Long userCode);
+    List<ManagerUserEntity> getManagersUsersByUserCode(Long userCode);
 
-    public ManagerUserEntity getManagerUserByUserCodeAndManagerAndProfile(Long userCode, ManagerEntity managerEntity,
+    ManagerUserEntity getManagerUserByUserCodeAndManagerAndProfile(Long userCode, ManagerEntity managerEntity,
             ManagerProfileEntity profileEntity);
 
-    public List<ManagerUserEntity> getManagersUsersByManagerAndProfiles(ManagerEntity managerEntity,
+    List<ManagerUserEntity> getManagersUsersByManagerAndProfiles(ManagerEntity managerEntity,
             List<ManagerProfileEntity> profiles);
 
-    public List<ManagerUserEntity> getManagersUsersByManager(ManagerEntity managerEntity);
+    List<ManagerUserEntity> getManagersUsersByManager(ManagerEntity managerEntity);
 
-    public void deleteManagerUserById(Long id);
+    void deleteManagerUserById(Long id);
 
 }

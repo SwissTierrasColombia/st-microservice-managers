@@ -6,12 +6,12 @@ import com.ai.st.microservice.managers.entities.ManagerStateEntity;
 
 public interface IManagerStateService {
 
-    public ManagerStateEntity createManagerState(ManagerStateEntity managerState);
+    ManagerStateEntity createManagerState(ManagerStateEntity managerState);
 
-    public List<ManagerStateEntity> getAllManagerStates();
+    List<ManagerStateEntity> getAllManagerStates();
 
-    public Long getCount();
+    Long getCount();
 
-    public ManagerStateEntity getManagerStateById(Long id);
+    ManagerStateEntity getManagerStateById(Long id);
 
 }
