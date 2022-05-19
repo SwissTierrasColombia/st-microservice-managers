@@ -18,78 +18,78 @@ import javax.persistence.TemporalType;
 @Table(name = "managers", schema = "managers")
 public class ManagerEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", nullable = false)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
 
-	@Column(name = "name", nullable = false, length = 255)
-	private String name;
-	
-	@Column(name = "alias", nullable = true, length = 20)
-	private String alias;
+    @Column(name = "name", nullable = false, length = 255)
+    private String name;
 
-	@Column(name = "tax_identification_number", nullable = false, length = 255)
-	private String taxIdentificationNumber;
+    @Column(name = "alias", nullable = true, length = 20)
+    private String alias;
 
-	@Column(name = "created_at", nullable = false)
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createdAt;
+    @Column(name = "tax_identification_number", nullable = false, length = 255)
+    private String taxIdentificationNumber;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "manager_state_id", referencedColumnName = "id", nullable = false)
-	private ManagerStateEntity managerState;
+    @Column(name = "created_at", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
 
-	public ManagerEntity() {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_state_id", referencedColumnName = "id", nullable = false)
+    private ManagerStateEntity managerState;
 
-	}
+    public ManagerEntity() {
 
-	public Long getId() {
-		return id;
-	}
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getTaxIdentificationNumber() {
-		return taxIdentificationNumber;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setTaxIdentificationNumber(String taxIdentificationNumber) {
-		this.taxIdentificationNumber = taxIdentificationNumber;
-	}
+    public String getTaxIdentificationNumber() {
+        return taxIdentificationNumber;
+    }
 
-	public Date getCreatedAt() {
-		return createdAt;
-	}
+    public void setTaxIdentificationNumber(String taxIdentificationNumber) {
+        this.taxIdentificationNumber = taxIdentificationNumber;
+    }
 
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
+    public Date getCreatedAt() {
+        return createdAt;
+    }
 
-	public ManagerStateEntity getManagerState() {
-		return managerState;
-	}
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	public void setManagerState(ManagerStateEntity managerState) {
-		this.managerState = managerState;
-	}
+    public ManagerStateEntity getManagerState() {
+        return managerState;
+    }
 
-	public String getAlias() {
-		return alias;
-	}
+    public void setManagerState(ManagerStateEntity managerState) {
+        this.managerState = managerState;
+    }
 
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 
 }
