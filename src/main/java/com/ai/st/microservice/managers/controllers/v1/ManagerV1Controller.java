@@ -3,7 +3,10 @@ package com.ai.st.microservice.managers.controllers.v1;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ai.st.microservice.common.dto.general.BasicResponseDto;
 import com.ai.st.microservice.managers.services.CryptoService;
+import com.ai.st.microservice.managers.services.tracing.SCMTracing;
+import com.ai.st.microservice.managers.services.tracing.TracingKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ai.st.microservice.managers.business.ManagerBusiness;
 import com.ai.st.microservice.managers.dto.CreateManagerDto;
-import com.ai.st.microservice.managers.dto.ErrorDto;
 import com.ai.st.microservice.managers.dto.ManagerDto;
 import com.ai.st.microservice.managers.dto.ManagerUserDto;
 import com.ai.st.microservice.managers.dto.UpdateManagerDto;
@@ -26,7 +28,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-@Api(value = "Managers", tags = {"Managers"})
+@Api(value = "Managers", tags = { "Managers" })
 @RestController
 @RequestMapping("api/managers/v1/managers")
 public class ManagerV1Controller {
@@ -44,19 +46,21 @@ public class ManagerV1Controller {
         this.cryptoService = cryptoService;
     }
 
-    @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get managers")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Get managers", response = ManagerDto.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Error Server", response = String.class)})
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
     public ResponseEntity<List<ManagerDto>> getManagers(
             @RequestParam(required = false, name = "state") Long managerStateId) {
 
         HttpStatus httpStatus;
-        List<ManagerDto> listManagers = new ArrayList<>();
+        List<ManagerDto> listManagers;
 
         try {
+
+            SCMTracing.setTransactionName("getManagers");
 
             listManagers = managerBusiness.getManagers(managerStateId);
 
@@ -65,83 +69,96 @@ public class ManagerV1Controller {
             listManagers = null;
             log.error("Error ManagerV1Controller@getManagers#Business ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             listManagers = null;
             log.error("Error ManagerV1Controller@getManagers#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(listManagers, httpStatus);
     }
 
-    @RequestMapping(value = "/{managerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{managerId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get manager by id")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Get manager by id", response = ManagerDto.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Error Server", response = String.class)})
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
     public ResponseEntity<ManagerDto> getManagerById(@PathVariable Long managerId) {
 
-        HttpStatus httpStatus = null;
+        HttpStatus httpStatus;
         ManagerDto managerDto = null;
 
         try {
 
+            SCMTracing.setTransactionName("getManagerById");
+
             managerDto = managerBusiness.getManagerById(managerId);
 
-            httpStatus = (managerDto instanceof ManagerDto) ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+            httpStatus = (managerDto != null) ? HttpStatus.OK : HttpStatus.NOT_FOUND;
         } catch (BusinessException e) {
             log.error("Error ManagerV1Controller@getManagerById#Business ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error ManagerV1Controller@getManagerById#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(managerDto, httpStatus);
     }
 
-    @RequestMapping(value = "/{managerId}/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{managerId}/users", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get users by manager")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Get users by manager", response = ManagerUserDto.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Error Server", response = String.class)})
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
     public ResponseEntity<?> getUsersByManager(@PathVariable Long managerId,
-                                               @RequestParam(required = false, name = "profiles") List<Long> profiles) {
+            @RequestParam(required = false, name = "profiles") List<Long> profiles) {
 
-        HttpStatus httpStatus = null;
-        Object responseDto = null;
+        HttpStatus httpStatus;
+        Object responseDto;
 
         try {
+
+            SCMTracing.setTransactionName("getUsersByManager");
 
             responseDto = managerBusiness.getUsersByManager(managerId, profiles);
             httpStatus = HttpStatus.OK;
 
         } catch (BusinessException e) {
-            log.error("Error ManagerV1Controller@getManagerById#Business ---> " + e.getMessage());
+            log.error("Error ManagerV1Controller@getUsersByManager#Business ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new ErrorDto(e.getMessage(), 2);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
-            log.error("Error ManagerV1Controller@getManagerById#General ---> " + e.getMessage());
+            log.error("Error ManagerV1Controller@getUsersByManager#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new ErrorDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
     }
 
-    @RequestMapping(value = "", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create Manager")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Create Manager", response = ManagerDto.class),
-            @ApiResponse(code = 500, message = "Error Server", response = String.class)})
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Manager created", response = ManagerDto.class),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
-    public ResponseEntity<Object> createManager(@RequestBody CreateManagerDto requestCreateManager) {
+    public ResponseEntity<?> createManager(@RequestBody CreateManagerDto requestCreateManager) {
 
-        HttpStatus httpStatus = null;
-        Object responseDto = null;
+        HttpStatus httpStatus;
+        Object responseDto;
 
         try {
+
+            SCMTracing.setTransactionName("createManager");
+            SCMTracing.addCustomParameter(TracingKeyword.BODY_REQUEST, requestCreateManager.toString());
 
             // validation manager name
             String managerName = requestCreateManager.getName();
@@ -161,15 +178,18 @@ public class ManagerV1Controller {
         } catch (InputValidationException e) {
             log.error("Error ManagerV1Controller@createManager#Validation ---> " + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new ErrorDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (BusinessException e) {
             log.error("Error ManagerV1Controller@createManager#Business ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new ErrorDto(e.getMessage(), 2);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error ManagerV1Controller@createManager#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new ErrorDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
@@ -177,15 +197,17 @@ public class ManagerV1Controller {
 
     @PutMapping("/{id}/enable")
     @ApiOperation(value = "Activate manager")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Manager activated", response = ManagerDto.class),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Manager activated", response = ManagerDto.class),
             @ApiResponse(code = 404, message = "Manager not found"),
-            @ApiResponse(code = 500, message = "Error Server")})
-    public ResponseEntity<ManagerDto> activateManager(@PathVariable(required = true) Long id) {
+            @ApiResponse(code = 500, message = "Error Server") })
+    public ResponseEntity<ManagerDto> activateManager(@PathVariable Long id) {
 
-        HttpStatus httpStatus = null;
+        HttpStatus httpStatus;
         ManagerDto managerDtoResponse = null;
 
         try {
+
+            SCMTracing.setTransactionName("activateManager");
 
             managerDtoResponse = managerBusiness.activateManager(id);
             httpStatus = HttpStatus.OK;
@@ -193,9 +215,11 @@ public class ManagerV1Controller {
         } catch (BusinessException e) {
             log.error("Error ManagerV1Controller@activateManager#Business ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error ManagerV1Controller@activateManager#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(managerDtoResponse, httpStatus);
@@ -203,41 +227,48 @@ public class ManagerV1Controller {
 
     @PutMapping("/{id}/disable")
     @ApiOperation(value = "Disable manager")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Manager disabled", response = ManagerDto.class),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Manager disabled", response = ManagerDto.class),
             @ApiResponse(code = 404, message = "Manager not found"),
-            @ApiResponse(code = 500, message = "Error Server")})
-    public ResponseEntity<ManagerDto> deactivateManager(@PathVariable(required = true) Long id) {
+            @ApiResponse(code = 500, message = "Error Server") })
+    public ResponseEntity<ManagerDto> deactivateManager(@PathVariable Long id) {
 
-        HttpStatus httpStatus = null;
+        HttpStatus httpStatus;
         ManagerDto managerDtoResponse = null;
 
         try {
+
+            SCMTracing.setTransactionName("deactivateManager");
 
             managerDtoResponse = managerBusiness.deactivateManager(id);
             httpStatus = HttpStatus.OK;
 
         } catch (BusinessException e) {
-            log.error("Error ManagerV1Controller@activateManager#Business ---> " + e.getMessage());
+            log.error("Error ManagerV1Controller@deactivateManager#Business ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
-            log.error("Error ManagerV1Controller@activateManager#General ---> " + e.getMessage());
+            log.error("Error ManagerV1Controller@deactivateManager#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(managerDtoResponse, httpStatus);
     }
 
-    @RequestMapping(value = "", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Update Manager")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Update Manager", response = ManagerDto.class),
-            @ApiResponse(code = 500, message = "Error Server", response = String.class)})
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Manager updated", response = ManagerDto.class),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
-    public ResponseEntity<Object> updateManager(@RequestBody UpdateManagerDto requestUpdateManager) {
+    public ResponseEntity<?> updateManager(@RequestBody UpdateManagerDto requestUpdateManager) {
 
-        HttpStatus httpStatus = null;
-        Object responseDto = null;
+        HttpStatus httpStatus;
+        Object responseDto;
 
         try {
+
+            SCMTracing.setTransactionName("updateManager");
+            SCMTracing.addCustomParameter(TracingKeyword.BODY_REQUEST, requestUpdateManager.toString());
 
             // validation manager id
             Long managerId = requestUpdateManager.getId();
@@ -264,15 +295,18 @@ public class ManagerV1Controller {
         } catch (InputValidationException e) {
             log.error("Error ManagerV1Controller@updateManager#Validation ---> " + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new ErrorDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (BusinessException e) {
             log.error("Error ManagerV1Controller@updateManager#Business ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new ErrorDto(e.getMessage(), 2);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error ManagerV1Controller@updateManager#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new ErrorDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
@@ -282,7 +316,7 @@ public class ManagerV1Controller {
     @ApiOperation(value = "Get public managers")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Get public managers", response = ManagerDto.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Error Server", response = String.class)})
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
     public ResponseEntity<List<ManagerDto>> getPublicManagers(
             @RequestParam(required = false, name = "state") Long managerStateId,
@@ -293,7 +327,7 @@ public class ManagerV1Controller {
 
         try {
 
-            System.out.println("gestores ---> " + cryptoService.encrypt("7UkM2kPNKx"));
+            SCMTracing.setTransactionName("getPublicManagers");
 
             String token = cryptoService.decrypt(stPublicTokenEncrypted);
             if (!tokenIGAC.equals(token)) {
@@ -309,10 +343,12 @@ public class ManagerV1Controller {
             listManagers = new ArrayList<>();
             log.error("Error ManagerV1Controller@getPublicManagers#Business ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             listManagers = new ArrayList<>();
             log.error("Error ManagerV1Controller@getPublicManagers#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(listManagers, httpStatus);

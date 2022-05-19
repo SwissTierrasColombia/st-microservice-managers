@@ -1,4 +1,4 @@
-package com.ai.st.microservice.managers.repositories;
+package com.ai.st.microservice.managers.models.repositories;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import com.ai.st.microservice.managers.entities.ManagerStateEntity;
 
 public interface ManagerStateRepository extends CrudRepository<ManagerStateEntity, Long> {
 
-	@Override
-	List<ManagerStateEntity> findAll();
+    @Override
+    List<ManagerStateEntity> findAll();
 
 }

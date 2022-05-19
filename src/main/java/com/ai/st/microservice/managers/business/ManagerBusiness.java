@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.ai.st.microservice.managers.services.tracing.SCMTracing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,359 +19,363 @@ import com.ai.st.microservice.managers.entities.ManagerProfileEntity;
 import com.ai.st.microservice.managers.entities.ManagerStateEntity;
 import com.ai.st.microservice.managers.entities.ManagerUserEntity;
 import com.ai.st.microservice.managers.exceptions.BusinessException;
-import com.ai.st.microservice.managers.services.IManagerProfileService;
-import com.ai.st.microservice.managers.services.IManagerService;
-import com.ai.st.microservice.managers.services.IManagerStateService;
-import com.ai.st.microservice.managers.services.IManagerUserService;
+import com.ai.st.microservice.managers.models.services.IManagerProfileService;
+import com.ai.st.microservice.managers.models.services.IManagerService;
+import com.ai.st.microservice.managers.models.services.IManagerStateService;
+import com.ai.st.microservice.managers.models.services.IManagerUserService;
 
 @Component
 public class ManagerBusiness {
 
-	@Autowired
-	private IManagerService managerService;
+    private final Logger log = LoggerFactory.getLogger(ManagerBusiness.class);
 
-	@Autowired
-	private IManagerUserService managerUserService;
+    @Autowired
+    private IManagerService managerService;
 
-	@Autowired
-	private IManagerProfileService managerProfileService;
+    @Autowired
+    private IManagerUserService managerUserService;
 
-	@Autowired
-	private IManagerStateService managerStateService;
+    @Autowired
+    private IManagerProfileService managerProfileService;
 
-	public List<ManagerDto> getManagers(Long managerStateId) throws BusinessException {
+    @Autowired
+    private IManagerStateService managerStateService;
 
-		List<ManagerDto> listManagersDto = new ArrayList<ManagerDto>();
+    public List<ManagerDto> getManagers(Long managerStateId) throws BusinessException {
 
-		List<ManagerEntity> listManagersEntity = new ArrayList<ManagerEntity>();
+        List<ManagerDto> listManagersDto = new ArrayList<>();
 
-		if (managerStateId != null) {
-			listManagersEntity = managerService.getManagersByStateId(managerStateId);
-		} else {
-			listManagersEntity = managerService.getAllManagers();
-		}
+        List<ManagerEntity> listManagersEntity;
 
-		for (ManagerEntity managerEntity : listManagersEntity) {
-			ManagerDto managerDto = transformEntityToDto(managerEntity);
-			listManagersDto.add(managerDto);
-		}
+        if (managerStateId != null) {
+            listManagersEntity = managerService.getManagersByStateId(managerStateId);
+        } else {
+            listManagersEntity = managerService.getAllManagers();
+        }
 
-		return listManagersDto;
-	}
+        for (ManagerEntity managerEntity : listManagersEntity) {
+            ManagerDto managerDto = transformEntityToDto(managerEntity);
+            listManagersDto.add(managerDto);
+        }
 
-	public ManagerDto getManagerById(Long id) throws BusinessException {
+        return listManagersDto;
+    }
 
-		ManagerDto managerDto = null;
+    public ManagerDto getManagerById(Long id) throws BusinessException {
 
-		ManagerEntity managerEntity = managerService.getManagerById(id);
-		if (managerEntity instanceof ManagerEntity) {
-			managerDto = transformEntityToDto(managerEntity);
-		}
+        ManagerDto managerDto = null;
 
-		return managerDto;
-	}
+        ManagerEntity managerEntity = managerService.getManagerById(id);
+        if (managerEntity != null) {
+            managerDto = transformEntityToDto(managerEntity);
+        }
 
-	public ManagerUserDto addUserToManager(Long userCode, Long managerId, Long profileId) throws BusinessException {
+        return managerDto;
+    }
 
-		// verify if manager does exits
-		ManagerEntity managerEntity = managerService.getManagerById(managerId);
-		if (!(managerEntity instanceof ManagerEntity)) {
-			throw new BusinessException("El gestor no existe.");
-		}
+    public ManagerUserDto addUserToManager(Long userCode, Long managerId, Long profileId) throws BusinessException {
 
-		// verify if profile does exists
-		ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(profileId);
-		if (!(managerProfileEntity instanceof ManagerProfileEntity)) {
-			throw new BusinessException("El perfil no existe.");
-		}
+        // verify if manager does exist
+        ManagerEntity managerEntity = managerService.getManagerById(managerId);
+        if (managerEntity == null) {
+            throw new BusinessException("El gestor no existe.");
+        }
 
-		ManagerUserEntity existsUser = managerUserService.getManagerUserByUserCodeAndManagerAndProfile(userCode,
-				managerEntity, managerProfileEntity);
-		if (existsUser instanceof ManagerUserEntity) {
-			throw new BusinessException("El usuario ya se encuentra registrado.");
-		}
+        // verify if profile does exists
+        ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(profileId);
+        if (managerProfileEntity == null) {
+            throw new BusinessException("El perfil no existe.");
+        }
 
-		ManagerUserEntity managerUserEntity = new ManagerUserEntity();
-		managerUserEntity.setCreatedAt(new Date());
-		managerUserEntity.setManager(managerEntity);
-		managerUserEntity.setManagerProfile(managerProfileEntity);
-		managerUserEntity.setUserCode(userCode);
+        ManagerUserEntity existsUser = managerUserService.getManagerUserByUserCodeAndManagerAndProfile(userCode,
+                managerEntity, managerProfileEntity);
+        if (existsUser != null) {
+            throw new BusinessException("El usuario ya se encuentra registrado.");
+        }
 
-		managerUserEntity = managerUserService.createManagerUser(managerUserEntity);
+        ManagerUserEntity managerUserEntity = new ManagerUserEntity();
+        managerUserEntity.setCreatedAt(new Date());
+        managerUserEntity.setManager(managerEntity);
+        managerUserEntity.setManagerProfile(managerProfileEntity);
+        managerUserEntity.setUserCode(userCode);
 
-		ManagerUserDto managerUserDto = new ManagerUserDto();
-		managerUserDto.setUserCode(managerUserEntity.getUserCode());
+        managerUserEntity = managerUserService.createManagerUser(managerUserEntity);
 
-		List<ManagerProfileDto> listProfiles = new ArrayList<ManagerProfileDto>();
-		List<ManagerUserEntity> list = managerUserService.getManagersUsersByUserCode(managerUserEntity.getUserCode());
-		for (ManagerUserEntity muEntity : list) {
-			ManagerProfileEntity managerProfile = muEntity.getManagerProfile();
-			ManagerProfileDto managerProfileDto = new ManagerProfileDto();
-			managerProfileDto.setDescription(managerProfile.getDescription());
-			managerProfileDto.setId(managerProfile.getId());
-			managerProfileDto.setName(managerProfile.getName());
-			listProfiles.add(managerProfileDto);
-		}
-		managerUserDto.setProfiles(listProfiles);
+        ManagerUserDto managerUserDto = new ManagerUserDto();
+        managerUserDto.setUserCode(managerUserEntity.getUserCode());
 
-		return managerUserDto;
-	}
+        List<ManagerProfileDto> listProfiles = new ArrayList<>();
+        List<ManagerUserEntity> list = managerUserService.getManagersUsersByUserCode(managerUserEntity.getUserCode());
+        for (ManagerUserEntity muEntity : list) {
+            ManagerProfileEntity managerProfile = muEntity.getManagerProfile();
+            ManagerProfileDto managerProfileDto = new ManagerProfileDto();
+            managerProfileDto.setDescription(managerProfile.getDescription());
+            managerProfileDto.setId(managerProfile.getId());
+            managerProfileDto.setName(managerProfile.getName());
+            listProfiles.add(managerProfileDto);
+        }
+        managerUserDto.setProfiles(listProfiles);
 
-	public List<ManagerUserDto> getUsersByManager(Long managerId, List<Long> profiles) throws BusinessException {
+        return managerUserDto;
+    }
 
-		List<ManagerUserDto> listUsersDto = new ArrayList<>();
+    public List<ManagerUserDto> getUsersByManager(Long managerId, List<Long> profiles) throws BusinessException {
 
-		// verify if manager does exits
-		ManagerEntity managerEntity = managerService.getManagerById(managerId);
-		if (!(managerEntity instanceof ManagerEntity)) {
-			throw new BusinessException("El gestor no existe.");
-		}
+        List<ManagerUserDto> listUsersDto = new ArrayList<>();
 
-		List<ManagerUserEntity> managersUsersEntity = null;
+        // verify if manager does exist
+        ManagerEntity managerEntity = managerService.getManagerById(managerId);
+        if (managerEntity == null) {
+            throw new BusinessException("El gestor no existe.");
+        }
 
-		if (profiles != null && profiles.size() > 0) {
+        List<ManagerUserEntity> managersUsersEntity;
 
-			List<ManagerProfileEntity> profilesEntity = new ArrayList<>();
-			for (Long profileId : profiles) {
-				ManagerProfileEntity profileEntity = managerProfileService.getManagerProfileById(profileId);
-				if (profileEntity instanceof ManagerProfileEntity) {
-					profilesEntity.add(profileEntity);
-				}
-			}
+        if (profiles != null && profiles.size() > 0) {
 
-			managersUsersEntity = managerUserService.getManagersUsersByManagerAndProfiles(managerEntity,
-					profilesEntity);
+            List<ManagerProfileEntity> profilesEntity = new ArrayList<>();
+            for (Long profileId : profiles) {
+                ManagerProfileEntity profileEntity = managerProfileService.getManagerProfileById(profileId);
+                if (profileEntity != null) {
+                    profilesEntity.add(profileEntity);
+                }
+            }
 
-		} else {
-			managersUsersEntity = managerUserService.getManagersUsersByManager(managerEntity);
-		}
+            managersUsersEntity = managerUserService.getManagersUsersByManagerAndProfiles(managerEntity,
+                    profilesEntity);
 
-		for (ManagerUserEntity managerUserEntity : managersUsersEntity) {
+        } else {
+            managersUsersEntity = managerUserService.getManagersUsersByManager(managerEntity);
+        }
 
-			ManagerUserDto managerUserDtoFound = listUsersDto.stream()
-					.filter(managerUserDto -> managerUserDto.getUserCode().equals(managerUserEntity.getUserCode()))
-					.findAny().orElse(null);
+        for (ManagerUserEntity managerUserEntity : managersUsersEntity) {
 
-			ManagerProfileEntity managerProfileEntity = managerUserEntity.getManagerProfile();
+            ManagerUserDto managerUserDtoFound = listUsersDto.stream()
+                    .filter(managerUserDto -> managerUserDto.getUserCode().equals(managerUserEntity.getUserCode()))
+                    .findAny().orElse(null);
 
-			if (managerUserDtoFound == null) {
+            ManagerProfileEntity managerProfileEntity = managerUserEntity.getManagerProfile();
 
-				ManagerUserDto managerUserDto = new ManagerUserDto();
-				managerUserDto.setUserCode(managerUserEntity.getUserCode());
+            if (managerUserDtoFound == null) {
 
-				List<ManagerProfileDto> profilesDto = new ArrayList<>();
-				profilesDto.add(new ManagerProfileDto(managerProfileEntity.getId(),
-						managerProfileEntity.getDescription(), managerProfileEntity.getName()));
-				managerUserDto.setProfiles(profilesDto);
+                ManagerUserDto managerUserDto = new ManagerUserDto();
+                managerUserDto.setUserCode(managerUserEntity.getUserCode());
 
-				listUsersDto.add(managerUserDto);
-			} else {
+                List<ManagerProfileDto> profilesDto = new ArrayList<>();
+                profilesDto.add(new ManagerProfileDto(managerProfileEntity.getId(),
+                        managerProfileEntity.getDescription(), managerProfileEntity.getName()));
+                managerUserDto.setProfiles(profilesDto);
 
-				for (ManagerUserDto managerUserDto : listUsersDto) {
+                listUsersDto.add(managerUserDto);
+            } else {
 
-					if (managerUserDto.getUserCode().equals(managerUserEntity.getUserCode())) {
-						managerUserDto.getProfiles().add(new ManagerProfileDto(managerProfileEntity.getId(),
-								managerProfileEntity.getDescription(), managerProfileEntity.getName()));
-					}
+                for (ManagerUserDto managerUserDto : listUsersDto) {
 
-				}
+                    if (managerUserDto.getUserCode().equals(managerUserEntity.getUserCode())) {
+                        managerUserDto.getProfiles().add(new ManagerProfileDto(managerProfileEntity.getId(),
+                                managerProfileEntity.getDescription(), managerProfileEntity.getName()));
+                    }
 
-			}
+                }
 
-		}
+            }
 
-		return listUsersDto;
-	}
+        }
 
-	public ManagerDto addManager(String name, String taxIdentification, String alias) throws BusinessException {
+        return listUsersDto;
+    }
 
-		if (name.isEmpty()) {
-			throw new BusinessException("El gestor debe contener un nombre.");
-		}
+    public ManagerDto addManager(String name, String taxIdentification, String alias) throws BusinessException {
 
-		if (taxIdentification.isEmpty()) {
-			throw new BusinessException("El gestor debe contener un identificador de impuestos.");
-		}
+        if (name.isEmpty()) {
+            throw new BusinessException("El gestor debe contener un nombre.");
+        }
 
-		ManagerStateEntity managerState = managerStateService
-				.getManagerStateById(ManagerStateBusiness.MANAGER_STATE_ACTIVE);
+        if (taxIdentification.isEmpty()) {
+            throw new BusinessException("El gestor debe contener un identificador de impuestos.");
+        }
 
-		ManagerEntity managerEntity = new ManagerEntity();
+        ManagerStateEntity managerState = managerStateService
+                .getManagerStateById(ManagerStateBusiness.MANAGER_STATE_ACTIVE);
 
-		managerEntity.setName(name.toUpperCase());
-		managerEntity.setCreatedAt(new Date());
-		managerEntity.setTaxIdentificationNumber(taxIdentification);
-		managerEntity.setManagerState(managerState);
+        ManagerEntity managerEntity = new ManagerEntity();
 
-		if (alias != null) {
-			managerEntity.setAlias(alias);
-		}
+        managerEntity.setName(name.toUpperCase());
+        managerEntity.setCreatedAt(new Date());
+        managerEntity.setTaxIdentificationNumber(taxIdentification);
+        managerEntity.setManagerState(managerState);
 
-		managerEntity = managerService.createManager(managerEntity);
+        if (alias != null) {
+            managerEntity.setAlias(alias);
+        }
 
-		ManagerDto managerDto = this.transformEntityToDto(managerEntity);
+        managerEntity = managerService.createManager(managerEntity);
 
-		return managerDto;
-	}
+        return this.transformEntityToDto(managerEntity);
+    }
 
-	protected ManagerDto transformEntityToDto(ManagerEntity managerEntity) {
+    protected ManagerDto transformEntityToDto(ManagerEntity managerEntity) {
 
-		ManagerDto managerDto = new ManagerDto();
-		managerDto.setId(managerEntity.getId());
-		managerDto.setAlias(managerEntity.getAlias());
-		managerDto.setCreatedAt(managerEntity.getCreatedAt());
-		managerDto.setName(managerEntity.getName());
-		managerDto.setTaxIdentificationNumber(managerEntity.getTaxIdentificationNumber());
+        ManagerDto managerDto = new ManagerDto();
+        managerDto.setId(managerEntity.getId());
+        managerDto.setAlias(managerEntity.getAlias());
+        managerDto.setCreatedAt(managerEntity.getCreatedAt());
+        managerDto.setName(managerEntity.getName());
+        managerDto.setTaxIdentificationNumber(managerEntity.getTaxIdentificationNumber());
 
-		ManagerStateDto managerStateDto = new ManagerStateDto();
-		managerStateDto.setId(managerEntity.getManagerState().getId());
-		managerStateDto.setName(managerEntity.getManagerState().getName());
+        ManagerStateDto managerStateDto = new ManagerStateDto();
+        managerStateDto.setId(managerEntity.getManagerState().getId());
+        managerStateDto.setName(managerEntity.getManagerState().getName());
 
-		managerDto.setManagerState(managerStateDto);
+        managerDto.setManagerState(managerStateDto);
 
-		return managerDto;
-	}
+        return managerDto;
+    }
 
-	public ManagerDto activateManager(Long managerId) throws BusinessException {
+    public ManagerDto activateManager(Long managerId) throws BusinessException {
 
-		ManagerDto managerDto = null;
+        ManagerDto managerDto;
 
-		// verify manager exists
-		ManagerEntity managerEntity = managerService.getManagerById(managerId);
-		if (!(managerEntity instanceof ManagerEntity)) {
-			throw new BusinessException("El gestor no existe.");
-		}
+        // verify manager exists
+        ManagerEntity managerEntity = managerService.getManagerById(managerId);
+        if (managerEntity == null) {
+            throw new BusinessException("El gestor no existe.");
+        }
 
-		// set manager state
-		ManagerStateEntity managerStateEntity = managerStateService
-				.getManagerStateById(ManagerStateBusiness.MANAGER_STATE_ACTIVE);
-		if (managerStateEntity == null) {
-			throw new BusinessException("El estado no existe.");
-		}
+        // set manager state
+        ManagerStateEntity managerStateEntity = managerStateService
+                .getManagerStateById(ManagerStateBusiness.MANAGER_STATE_ACTIVE);
+        if (managerStateEntity == null) {
+            throw new BusinessException("El estado no existe.");
+        }
 
-		managerEntity.setManagerState(managerStateEntity);
+        managerEntity.setManagerState(managerStateEntity);
 
-		try {
-			ManagerEntity managerUpdatedEntity = managerService.updateManager(managerEntity);
-			managerDto = this.transformEntityToDto(managerUpdatedEntity);
-		} catch (Exception e) {
-			throw new BusinessException("No se ha podido activar el gestor.");
-		}
+        try {
+            ManagerEntity managerUpdatedEntity = managerService.updateManager(managerEntity);
+            managerDto = this.transformEntityToDto(managerUpdatedEntity);
+        } catch (Exception e) {
+            String messageError = String.format("Error activando el gestor %d : %s", managerId, e.getMessage());
+            SCMTracing.sendError(messageError);
+            log.error(messageError);
+            throw new BusinessException("No se ha podido activar el gestor.");
+        }
 
-		return managerDto;
-	}
+        return managerDto;
+    }
 
-	public ManagerDto deactivateManager(Long managerId) throws BusinessException {
+    public ManagerDto deactivateManager(Long managerId) throws BusinessException {
 
-		ManagerDto managerDto = null;
+        ManagerDto managerDto;
 
-		// verify manager exists
-		ManagerEntity managerEntity = managerService.getManagerById(managerId);
-		if (!(managerEntity instanceof ManagerEntity)) {
-			throw new BusinessException("El gestor no existe.");
-		}
+        // verify manager exists
+        ManagerEntity managerEntity = managerService.getManagerById(managerId);
+        if (managerEntity == null) {
+            throw new BusinessException("El gestor no existe.");
+        }
 
-		// set manager state
-		ManagerStateEntity managerStateEntity = managerStateService
-				.getManagerStateById(ManagerStateBusiness.MANAGER_STATE_INACTIVE);
-		if (managerStateEntity == null) {
-			throw new BusinessException("El estado no existe.");
-		}
+        // set manager state
+        ManagerStateEntity managerStateEntity = managerStateService
+                .getManagerStateById(ManagerStateBusiness.MANAGER_STATE_INACTIVE);
+        if (managerStateEntity == null) {
+            throw new BusinessException("El estado no existe.");
+        }
 
-		managerEntity.setManagerState(managerStateEntity);
+        managerEntity.setManagerState(managerStateEntity);
 
-		try {
-			ManagerEntity managerUpdatedEntity = managerService.updateManager(managerEntity);
-			managerDto = this.transformEntityToDto(managerUpdatedEntity);
-		} catch (Exception e) {
-			throw new BusinessException("No se ha podido desactivar el gestor.");
-		}
+        try {
+            ManagerEntity managerUpdatedEntity = managerService.updateManager(managerEntity);
+            managerDto = this.transformEntityToDto(managerUpdatedEntity);
+        } catch (Exception e) {
+            String messageError = String.format("Error desactivando el gestor %d : %s", managerId, e.getMessage());
+            SCMTracing.sendError(messageError);
+            log.error(messageError);
+            throw new BusinessException("No se ha podido desactivar el gestor.");
+        }
 
-		return managerDto;
-	}
+        return managerDto;
+    }
 
-	public ManagerDto updateManager(Long managerId, String name, String taxIdentification, String alias)
-			throws BusinessException {
+    public ManagerDto updateManager(Long managerId, String name, String taxIdentification, String alias)
+            throws BusinessException {
 
-		if (managerId <= 0) {
-			throw new BusinessException("El gestor debe contener un id.");
-		}
+        if (managerId <= 0) {
+            throw new BusinessException("El gestor debe contener un id.");
+        }
 
-		if (name.isEmpty()) {
-			throw new BusinessException("El gestor debe contener un nombre.");
-		}
+        if (name.isEmpty()) {
+            throw new BusinessException("El gestor debe contener un nombre.");
+        }
 
-		if (taxIdentification.isEmpty()) {
-			throw new BusinessException("El gestor debe contener un identificador de impuestos.");
-		}
+        if (taxIdentification.isEmpty()) {
+            throw new BusinessException("El gestor debe contener un identificador de impuestos.");
+        }
 
-		// verify manager exists
-		ManagerEntity managerEntity = managerService.getManagerById(managerId);
-		if (!(managerEntity instanceof ManagerEntity)) {
-			throw new BusinessException("El gestor no existe.");
-		}
+        // verify manager exists
+        ManagerEntity managerEntity = managerService.getManagerById(managerId);
+        if (managerEntity == null) {
+            throw new BusinessException("El gestor no existe.");
+        }
 
-		managerEntity.setName(name.toUpperCase());
-		managerEntity.setCreatedAt(new Date());
-		managerEntity.setTaxIdentificationNumber(taxIdentification);
+        managerEntity.setName(name.toUpperCase());
+        managerEntity.setCreatedAt(new Date());
+        managerEntity.setTaxIdentificationNumber(taxIdentification);
 
-		if (alias != null) {
-			managerEntity.setAlias(alias);
-		} else {
-			managerEntity.setAlias(null);
-		}
+        if (alias != null) {
+            managerEntity.setAlias(alias);
+        } else {
+            managerEntity.setAlias(null);
+        }
 
-		managerEntity = managerService.updateManager(managerEntity);
+        managerEntity = managerService.updateManager(managerEntity);
 
-		ManagerDto managerDto = this.transformEntityToDto(managerEntity);
+        return this.transformEntityToDto(managerEntity);
+    }
 
-		return managerDto;
-	}
+    public ManagerUserDto removeUserToManager(Long userCode, Long managerId, Long profileId) throws BusinessException {
 
-	public ManagerUserDto removeUserToManager(Long userCode, Long managerId, Long profileId) throws BusinessException {
+        // verify if manager does exist
+        ManagerEntity managerEntity = managerService.getManagerById(managerId);
+        if (managerEntity == null) {
+            throw new BusinessException("El gestor no existe.");
+        }
 
-		// verify if manager does exits
-		ManagerEntity managerEntity = managerService.getManagerById(managerId);
-		if (!(managerEntity instanceof ManagerEntity)) {
-			throw new BusinessException("El gestor no existe.");
-		}
+        // verify if profile does exists
+        ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(profileId);
+        if (managerProfileEntity == null) {
+            throw new BusinessException("El perfil no existe.");
+        }
 
-		// verify if profile does exists
-		ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(profileId);
-		if (!(managerProfileEntity instanceof ManagerProfileEntity)) {
-			throw new BusinessException("El perfil no existe.");
-		}
+        ManagerUserEntity existsUser = managerUserService.getManagerUserByUserCodeAndManagerAndProfile(userCode,
+                managerEntity, managerProfileEntity);
+        if (existsUser == null) {
+            throw new BusinessException("El usuario no tiene asignado el perfil.");
+        }
 
-		ManagerUserEntity existsUser = managerUserService.getManagerUserByUserCodeAndManagerAndProfile(userCode,
-				managerEntity, managerProfileEntity);
-		if (!(existsUser instanceof ManagerUserEntity)) {
-			throw new BusinessException("El usuario no tiene asignado el perfil.");
-		}
+        List<ManagerUserEntity> profilesUser = managerUserService.getManagersUsersByUserCode(userCode);
+        if (profilesUser.size() <= 1) {
+            throw new BusinessException("No se puede quitar el perfil al usuario porque es el único que tiene.");
+        }
 
-		List<ManagerUserEntity> profilesUser = managerUserService.getManagersUsersByUserCode(userCode);
-		if (profilesUser.size() <= 1) {
-			throw new BusinessException("No se puede quitar el perfil al usuario porque es el único que tiene.");
-		}
+        managerUserService.deleteManagerUserById(existsUser.getId());
 
-		managerUserService.deleteManagerUserById(existsUser.getId());
+        ManagerUserDto managerUserDto = new ManagerUserDto();
+        managerUserDto.setUserCode(userCode);
 
-		ManagerUserDto managerUserDto = new ManagerUserDto();
-		managerUserDto.setUserCode(userCode);
+        List<ManagerProfileDto> listProfiles = new ArrayList<>();
+        List<ManagerUserEntity> list = managerUserService.getManagersUsersByUserCode(userCode);
+        for (ManagerUserEntity muEntity : list) {
+            ManagerProfileEntity managerProfile = muEntity.getManagerProfile();
+            ManagerProfileDto managerProfileDto = new ManagerProfileDto();
+            managerProfileDto.setDescription(managerProfile.getDescription());
+            managerProfileDto.setId(managerProfile.getId());
+            managerProfileDto.setName(managerProfile.getName());
+            listProfiles.add(managerProfileDto);
+        }
+        managerUserDto.setProfiles(listProfiles);
 
-		List<ManagerProfileDto> listProfiles = new ArrayList<ManagerProfileDto>();
-		List<ManagerUserEntity> list = managerUserService.getManagersUsersByUserCode(userCode);
-		for (ManagerUserEntity muEntity : list) {
-			ManagerProfileEntity managerProfile = muEntity.getManagerProfile();
-			ManagerProfileDto managerProfileDto = new ManagerProfileDto();
-			managerProfileDto.setDescription(managerProfile.getDescription());
-			managerProfileDto.setId(managerProfile.getId());
-			managerProfileDto.setName(managerProfile.getName());
-			listProfiles.add(managerProfileDto);
-		}
-		managerUserDto.setProfiles(listProfiles);
+        return managerUserDto;
 
-		return managerUserDto;
-
-	}
+    }
 
 }

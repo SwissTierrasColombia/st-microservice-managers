@@ -1,23 +1,19 @@
 package com.ai.st.microservice.managers.controllers.v1;
 
+import com.ai.st.microservice.common.dto.general.BasicResponseDto;
+import com.ai.st.microservice.managers.services.tracing.SCMTracing;
+import com.ai.st.microservice.managers.services.tracing.TracingKeyword;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.ai.st.microservice.managers.business.ManagerBusiness;
 import com.ai.st.microservice.managers.business.ManagerProfileBusiness;
 import com.ai.st.microservice.managers.business.ManagerUserBusiness;
 import com.ai.st.microservice.managers.dto.AddUserToManagerDto;
-import com.ai.st.microservice.managers.dto.ErrorDto;
 import com.ai.st.microservice.managers.dto.ManagerDto;
 import com.ai.st.microservice.managers.dto.ManagerProfileDto;
 import com.ai.st.microservice.managers.exceptions.BusinessException;
@@ -28,172 +24,196 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-@Api(value = "Managers", description = "Managers", tags = { "Managers User" })
+@Api(value = "Managers", tags = { "Managers User" })
 @RestController
 @RequestMapping("api/managers/v1/users")
 public class ManagerUserV1Controller {
 
-	@Autowired
-	private ManagerUserBusiness managerUserBusiness;
+    private final Logger log = LoggerFactory.getLogger(ManagerV1Controller.class);
 
-	@Autowired
-	private ManagerBusiness managerBusiness;
+    private final ManagerUserBusiness managerUserBusiness;
+    private final ManagerBusiness managerBusiness;
+    private final ManagerProfileBusiness managerProfileBusiness;
 
-	@Autowired
-	private ManagerProfileBusiness managerProfileBusiness;
+    public ManagerUserV1Controller(ManagerUserBusiness managerUserBusiness, ManagerBusiness managerBusiness,
+            ManagerProfileBusiness managerProfileBusiness) {
+        this.managerUserBusiness = managerUserBusiness;
+        this.managerBusiness = managerBusiness;
+        this.managerProfileBusiness = managerProfileBusiness;
+    }
 
-	private final Logger log = LoggerFactory.getLogger(ManagerV1Controller.class);
+    @GetMapping(value = "/{userCode}/managers", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get manager by user")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Get manager by user", response = ManagerDto.class),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
+    @ResponseBody
+    public ResponseEntity<ManagerDto> getManagerByUser(@PathVariable Long userCode) {
 
-	@RequestMapping(value = "/{userCode}/managers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(value = "Get manager by user")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Get manager by user", response = ManagerDto.class),
-			@ApiResponse(code = 500, message = "Error Server", response = String.class) })
-	@ResponseBody
-	public ResponseEntity<ManagerDto> getManagersByUser(@PathVariable Long userCode) {
+        HttpStatus httpStatus;
+        ManagerDto managerDto = null;
 
-		HttpStatus httpStatus = null;
-		ManagerDto managerDto = null;
+        try {
 
-		try {
-			managerDto = managerUserBusiness.getManagerByUserCode(userCode);
-			httpStatus = (managerDto instanceof ManagerDto) ? HttpStatus.OK : HttpStatus.NOT_FOUND;
-		} catch (BusinessException e) {
-			log.error("Error ManagerUserV1Controller@getManagersByUser#Business ---> " + e.getMessage());
-			httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-		} catch (Exception e) {
-			log.error("Error ManagerUserV1Controller@getManagersByUser#General ---> " + e.getMessage());
-			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-		}
+            SCMTracing.setTransactionName("getManagerByUser");
 
-		return new ResponseEntity<>(managerDto, httpStatus);
-	}
+            managerDto = managerUserBusiness.getManagerByUserCode(userCode);
+            httpStatus = (managerDto != null) ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+        } catch (BusinessException e) {
+            log.error("Error ManagerUserV1Controller@getManagerByUser#Business ---> " + e.getMessage());
+            httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+            SCMTracing.sendError(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error ManagerUserV1Controller@getManagerByUser#General ---> " + e.getMessage());
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            SCMTracing.sendError(e.getMessage());
+        }
 
-	@RequestMapping(value = "", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(value = "Add user to manager")
-	@ApiResponses(value = { @ApiResponse(code = 201, message = "Add user to manager", response = ManagerDto.class),
-			@ApiResponse(code = 500, message = "Error Server", response = String.class) })
-	@ResponseBody
-	public ResponseEntity<Object> addUserToManager(@RequestBody AddUserToManagerDto addUserToManager) {
+        return new ResponseEntity<>(managerDto, httpStatus);
+    }
 
-		HttpStatus httpStatus = null;
-		Object responseDto = null;
+    @PostMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Add user to manager")
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "User added to manager", response = ManagerDto.class),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
+    @ResponseBody
+    public ResponseEntity<?> addUserToManager(@RequestBody AddUserToManagerDto addUserToManager) {
 
-		try {
+        HttpStatus httpStatus;
+        Object responseDto;
 
-			// validation user code
-			Long userCode = addUserToManager.getUserCode();
-			if (userCode == null || userCode <= 0) {
-				throw new InputValidationException("El código de usuario es inválido.");
-			}
+        try {
 
-			// validation manager id
-			Long managerId = addUserToManager.getManagerId();
-			if (managerId == null || managerId <= 0) {
-				throw new InputValidationException("El gestor es inválido.");
-			}
+            SCMTracing.setTransactionName("addUserToManager");
+            SCMTracing.addCustomParameter(TracingKeyword.BODY_REQUEST, addUserToManager.toString());
 
-			// validation profile id
-			Long profileId = addUserToManager.getProfileId();
-			if (profileId == null || profileId <= 0) {
-				throw new InputValidationException("El perfil es inválido.");
-			}
+            // validation user code
+            Long userCode = addUserToManager.getUserCode();
+            if (userCode == null || userCode <= 0) {
+                throw new InputValidationException("El código de usuario es inválido.");
+            }
 
-			responseDto = managerBusiness.addUserToManager(userCode, managerId, profileId);
-			httpStatus = HttpStatus.CREATED;
+            // validation manager id
+            Long managerId = addUserToManager.getManagerId();
+            if (managerId == null || managerId <= 0) {
+                throw new InputValidationException("El gestor es inválido.");
+            }
 
-		} catch (InputValidationException e) {
-			log.error("Error ManagerUserV1Controller@addUserToManager#Validation ---> " + e.getMessage());
-			httpStatus = HttpStatus.BAD_REQUEST;
-			responseDto = new ErrorDto(e.getMessage(), 1);
-		} catch (BusinessException e) {
-			log.error("Error ManagerUserV1Controller@addUserToManager#Business ---> " + e.getMessage());
-			httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-			responseDto = new ErrorDto(e.getMessage(), 2);
-		} catch (Exception e) {
-			log.error("Error ManagerUserV1Controller@addUserToManager#General ---> " + e.getMessage());
-			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-			responseDto = new ErrorDto(e.getMessage(), 3);
-		}
+            // validation profile id
+            Long profileId = addUserToManager.getProfileId();
+            if (profileId == null || profileId <= 0) {
+                throw new InputValidationException("El perfil es inválido.");
+            }
 
-		return new ResponseEntity<>(responseDto, httpStatus);
-	}
+            responseDto = managerBusiness.addUserToManager(userCode, managerId, profileId);
+            httpStatus = HttpStatus.CREATED;
 
-	@RequestMapping(value = "{userCode}/profiles", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(value = "Get profiles by user")
-	@ApiResponses(value = {
-			@ApiResponse(code = 201, message = "Get profiles by user", response = ManagerProfileDto.class),
-			@ApiResponse(code = 500, message = "Error Server", response = String.class) })
-	@ResponseBody
-	public ResponseEntity<?> getProfilesByUser(@PathVariable Long userCode) {
+        } catch (InputValidationException e) {
+            log.error("Error ManagerUserV1Controller@addUserToManager#Validation ---> " + e.getMessage());
+            httpStatus = HttpStatus.BAD_REQUEST;
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
+        } catch (BusinessException e) {
+            log.error("Error ManagerUserV1Controller@addUserToManager#Business ---> " + e.getMessage());
+            httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error ManagerUserV1Controller@addUserToManager#General ---> " + e.getMessage());
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
+        }
 
-		HttpStatus httpStatus = null;
-		Object responseDto = null;
+        return new ResponseEntity<>(responseDto, httpStatus);
+    }
 
-		try {
-			responseDto = managerProfileBusiness.getProfilesByUser(userCode);
-			httpStatus = HttpStatus.OK;
+    @GetMapping(value = "{userCode}/profiles", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get profiles by user")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Get profiles by user", response = ManagerProfileDto.class),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
+    @ResponseBody
+    public ResponseEntity<?> getProfilesByUser(@PathVariable Long userCode) {
 
-		} catch (BusinessException e) {
-			log.error("Error ManagerUserV1Controller@getProfiles#Business ---> " + e.getMessage());
-			httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-			responseDto = new ErrorDto(e.getMessage(), 2);
-		} catch (Exception e) {
-			log.error("Error ManagerUserV1Controller@getProfiles#General ---> " + e.getMessage());
-			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-			responseDto = new ErrorDto(e.getMessage(), 3);
-		}
+        HttpStatus httpStatus;
+        Object responseDto;
 
-		return new ResponseEntity<>(responseDto, httpStatus);
-	}
+        try {
 
-	@RequestMapping(value = "", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(value = "Remove user to manager")
-	@ApiResponses(value = { @ApiResponse(code = 201, message = "Remove user to manager", response = ManagerDto.class),
-			@ApiResponse(code = 500, message = "Error Server", response = String.class) })
-	@ResponseBody
-	public ResponseEntity<Object> removeUserToManager(@RequestBody AddUserToManagerDto addUserToManager) {
+            SCMTracing.setTransactionName("getProfilesByUser");
 
-		HttpStatus httpStatus = null;
-		Object responseDto = null;
+            responseDto = managerProfileBusiness.getProfilesByUser(userCode);
+            httpStatus = HttpStatus.OK;
 
-		try {
+        } catch (BusinessException e) {
+            log.error("Error ManagerUserV1Controller@getProfiles#Business ---> " + e.getMessage());
+            httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error ManagerUserV1Controller@getProfiles#General ---> " + e.getMessage());
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
+        }
 
-			// validation user code
-			Long userCode = addUserToManager.getUserCode();
-			if (userCode == null || userCode <= 0) {
-				throw new InputValidationException("El código de usuario es inválido.");
-			}
+        return new ResponseEntity<>(responseDto, httpStatus);
+    }
 
-			// validation manager id
-			Long managerId = addUserToManager.getManagerId();
-			if (managerId == null || managerId <= 0) {
-				throw new InputValidationException("El gestor es inválido.");
-			}
+    @DeleteMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Remove user to manager")
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "User removed to manager", response = ManagerDto.class),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
+    @ResponseBody
+    public ResponseEntity<?> removeUserToManager(@RequestBody AddUserToManagerDto removeUserToManager) {
 
-			// validation profile id
-			Long profileId = addUserToManager.getProfileId();
-			if (profileId == null || profileId <= 0) {
-				throw new InputValidationException("El perfil es inválido.");
-			}
+        HttpStatus httpStatus;
+        Object responseDto;
 
-			responseDto = managerBusiness.removeUserToManager(userCode, managerId, profileId);
-			httpStatus = HttpStatus.OK;
+        try {
 
-		} catch (InputValidationException e) {
-			log.error("Error ManagerUserV1Controller@removeUserToManager#Validation ---> " + e.getMessage());
-			httpStatus = HttpStatus.BAD_REQUEST;
-			responseDto = new ErrorDto(e.getMessage(), 1);
-		} catch (BusinessException e) {
-			log.error("Error ManagerUserV1Controller@removeUserToManager#Business ---> " + e.getMessage());
-			httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-			responseDto = new ErrorDto(e.getMessage(), 2);
-		} catch (Exception e) {
-			log.error("Error ManagerUserV1Controller@removeUserToManager#General ---> " + e.getMessage());
-			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-			responseDto = new ErrorDto(e.getMessage(), 3);
-		}
+            SCMTracing.setTransactionName("removeUserToManager");
+            SCMTracing.addCustomParameter(TracingKeyword.BODY_REQUEST, removeUserToManager.toString());
 
-		return new ResponseEntity<>(responseDto, httpStatus);
-	}
+            // validation user code
+            Long userCode = removeUserToManager.getUserCode();
+            if (userCode == null || userCode <= 0) {
+                throw new InputValidationException("El código de usuario es inválido.");
+            }
+
+            // validation manager id
+            Long managerId = removeUserToManager.getManagerId();
+            if (managerId == null || managerId <= 0) {
+                throw new InputValidationException("El gestor es inválido.");
+            }
+
+            // validation profile id
+            Long profileId = removeUserToManager.getProfileId();
+            if (profileId == null || profileId <= 0) {
+                throw new InputValidationException("El perfil es inválido.");
+            }
+
+            responseDto = managerBusiness.removeUserToManager(userCode, managerId, profileId);
+            httpStatus = HttpStatus.OK;
+
+        } catch (InputValidationException e) {
+            log.error("Error ManagerUserV1Controller@removeUserToManager#Validation ---> " + e.getMessage());
+            httpStatus = HttpStatus.BAD_REQUEST;
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
+        } catch (BusinessException e) {
+            log.error("Error ManagerUserV1Controller@removeUserToManager#Business ---> " + e.getMessage());
+            httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error ManagerUserV1Controller@removeUserToManager#General ---> " + e.getMessage());
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
+        }
+
+        return new ResponseEntity<>(responseDto, httpStatus);
+    }
 
 }

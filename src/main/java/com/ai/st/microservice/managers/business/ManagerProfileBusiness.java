@@ -3,6 +3,9 @@ package com.ai.st.microservice.managers.business;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ai.st.microservice.managers.services.tracing.SCMTracing;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,142 +13,139 @@ import com.ai.st.microservice.managers.dto.ManagerProfileDto;
 import com.ai.st.microservice.managers.entities.ManagerProfileEntity;
 import com.ai.st.microservice.managers.entities.ManagerUserEntity;
 import com.ai.st.microservice.managers.exceptions.BusinessException;
-import com.ai.st.microservice.managers.services.IManagerProfileService;
-import com.ai.st.microservice.managers.services.IManagerUserService;
+import com.ai.st.microservice.managers.models.services.IManagerProfileService;
+import com.ai.st.microservice.managers.models.services.IManagerUserService;
 
 @Component
 public class ManagerProfileBusiness {
 
-	@Autowired
-	private IManagerProfileService managerProfileService;
-	
-	@Autowired
-	private IManagerUserService managerUserService;
+    private final Logger log = LoggerFactory.getLogger(ManagerProfileBusiness.class);
 
-	public static final Long MANAGER_PROFILE_DIRECTOR = (long) 1;
-	public static final Long MANAGER_PROFILE_SINIC = (long) 2;
+    @Autowired
+    private IManagerProfileService managerProfileService;
 
-	public List<ManagerProfileDto> getProfiles() throws BusinessException {
+    @Autowired
+    private IManagerUserService managerUserService;
 
-		List<ManagerProfileDto> profilesDto = new ArrayList<ManagerProfileDto>();
+    public static final Long MANAGER_PROFILE_DIRECTOR = (long) 1;
+    public static final Long MANAGER_PROFILE_SINIC = (long) 2;
 
-		List<ManagerProfileEntity> profilesEntity = managerProfileService.getAllProfiles();
+    public List<ManagerProfileDto> getProfiles() throws BusinessException {
 
-		for (ManagerProfileEntity profileEntity : profilesEntity) {
+        List<ManagerProfileDto> profilesDto = new ArrayList<>();
 
-			ManagerProfileDto profileDto = new ManagerProfileDto();
-			profileDto.setDescription(profileEntity.getDescription());
-			profileDto.setId(profileEntity.getId());
-			profileDto.setName(profileEntity.getName());
+        List<ManagerProfileEntity> profilesEntity = managerProfileService.getAllProfiles();
 
-			profilesDto.add(profileDto);
-		}
+        for (ManagerProfileEntity profileEntity : profilesEntity) {
 
-		return profilesDto;
-	}
+            ManagerProfileDto profileDto = new ManagerProfileDto();
+            profileDto.setDescription(profileEntity.getDescription());
+            profileDto.setId(profileEntity.getId());
+            profileDto.setName(profileEntity.getName());
 
-	public List<ManagerProfileDto> getProfilesByUser(Long userCode) throws BusinessException {
+            profilesDto.add(profileDto);
+        }
 
-		List<ManagerProfileDto> profilesDto = new ArrayList<ManagerProfileDto>();
-		
-		List<ManagerUserEntity> listManagerUsers =  managerUserService.getManagersUsersByUserCode(userCode);
-		
-		for (ManagerUserEntity managerUser: listManagerUsers) {
-			
-			ManagerProfileEntity profileEntity =  managerUser.getManagerProfile();
-			
-			ManagerProfileDto profileDto = new ManagerProfileDto();
-			profileDto.setDescription(profileEntity.getDescription());
-			profileDto.setId(profileEntity.getId());
-			profileDto.setName(profileEntity.getName());
-			
-			profilesDto.add(profileDto);
-		}
+        return profilesDto;
+    }
 
-		return profilesDto;
-	}
+    public List<ManagerProfileDto> getProfilesByUser(Long userCode) throws BusinessException {
 
+        List<ManagerProfileDto> profilesDto = new ArrayList<>();
 
-	public ManagerProfileDto addManagerProfile(String managerProfileName, String description) throws BusinessException {
+        List<ManagerUserEntity> listManagerUsers = managerUserService.getManagersUsersByUserCode(userCode);
 
-		if (managerProfileName.isEmpty()) {
-			throw new BusinessException("El perfil de gestor debe contener un nombre.");
-		}
+        for (ManagerUserEntity managerUser : listManagerUsers) {
 
-		if (description.isEmpty()) {
-			throw new BusinessException("El perfil de gestor debe contener una descripción.");
-		}
+            ManagerProfileEntity profileEntity = managerUser.getManagerProfile();
 
-		ManagerProfileEntity managerProfileEntity = new ManagerProfileEntity();
+            ManagerProfileDto profileDto = new ManagerProfileDto();
+            profileDto.setDescription(profileEntity.getDescription());
+            profileDto.setId(profileEntity.getId());
+            profileDto.setName(profileEntity.getName());
 
-		managerProfileEntity.setName(managerProfileName);
-		managerProfileEntity.setDescription(description);
+            profilesDto.add(profileDto);
+        }
 
-		managerProfileEntity = managerProfileService.createManagerProfile(managerProfileEntity);
+        return profilesDto;
+    }
 
-		ManagerProfileDto managerProfileDto = this.transformEntityToDto(managerProfileEntity);
+    public ManagerProfileDto addManagerProfile(String managerProfileName, String description) throws BusinessException {
 
-		return managerProfileDto;
-	}
+        if (managerProfileName.isEmpty()) {
+            throw new BusinessException("El perfil de gestor debe contener un nombre.");
+        }
 
-	protected ManagerProfileDto transformEntityToDto(ManagerProfileEntity managerProfileEntity) {
+        if (description.isEmpty()) {
+            throw new BusinessException("El perfil de gestor debe contener una descripción.");
+        }
 
-		ManagerProfileDto managerProfileDto = new ManagerProfileDto();
-		
-		managerProfileDto.setId(managerProfileEntity.getId());
-		managerProfileDto.setName(managerProfileEntity.getName());
-		managerProfileDto.setDescription(managerProfileEntity.getDescription());
-		
-		return managerProfileDto;
-	}
+        ManagerProfileEntity managerProfileEntity = new ManagerProfileEntity();
 
-	public ManagerProfileDto deleteManagerProfile(Long profileId) throws BusinessException {
+        managerProfileEntity.setName(managerProfileName);
+        managerProfileEntity.setDescription(description);
 
-		ManagerProfileDto managerProfileDto = null;
+        managerProfileEntity = managerProfileService.createManagerProfile(managerProfileEntity);
 
-		// verify manager profile exists
-		ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(profileId);
-		if (!(managerProfileEntity instanceof ManagerProfileEntity)) {
-			throw new BusinessException("Manager profile not found.");
-		}
+        return this.transformEntityToDto(managerProfileEntity);
+    }
 
-		try {
-			managerProfileService.deleteById(profileId);
-		} catch (Exception e) {
-			throw new BusinessException("The manager profile could not be updated.");
-		}
+    protected ManagerProfileDto transformEntityToDto(ManagerProfileEntity managerProfileEntity) {
 
-		return managerProfileDto;
-	}
+        ManagerProfileDto managerProfileDto = new ManagerProfileDto();
 
-	public ManagerProfileDto updateManagerProfile(Long managerProfileId, String managerProfileName, String description) throws BusinessException {
+        managerProfileDto.setId(managerProfileEntity.getId());
+        managerProfileDto.setName(managerProfileEntity.getName());
+        managerProfileDto.setDescription(managerProfileEntity.getDescription());
 
-		if (managerProfileId <= 0) {
-			throw new BusinessException("El perfil de gestor debe contener un id.");
-		}
+        return managerProfileDto;
+    }
 
-		if (managerProfileName.isEmpty()) {
-			throw new BusinessException("El perfil de gestor debe contener un nombre.");
-		}
+    public void deleteManagerProfile(Long profileId) throws BusinessException {
 
-		if (description.isEmpty()) {
-			throw new BusinessException("El perfil de gestor debe contener una descripción.");
-		}
+        // verify manager profile exists
+        ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(profileId);
+        if (managerProfileEntity == null) {
+            throw new BusinessException("Perfil no encontrado.");
+        }
 
-		// verify manager profile exists
-		ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(managerProfileId);
-		if (!(managerProfileEntity instanceof ManagerProfileEntity)) {
-			throw new BusinessException("Manager profile not found.");
-		}
+        try {
+            managerProfileService.deleteById(profileId);
+        } catch (Exception e) {
+            String messageError = String.format("Error eliminando el perfil %d: %s", profileId, e.getMessage());
+            SCMTracing.sendError(messageError);
+            log.error(messageError);
+            throw new BusinessException("Error eliminando el perfil.");
+        }
+    }
 
-		managerProfileEntity.setName(managerProfileName);
-		managerProfileEntity.setDescription(description);
+    public ManagerProfileDto updateManagerProfile(Long managerProfileId, String managerProfileName, String description)
+            throws BusinessException {
 
-		managerProfileEntity = managerProfileService.updateManagerProfile(managerProfileEntity);
+        if (managerProfileId <= 0) {
+            throw new BusinessException("El perfil de gestor debe contener un id.");
+        }
 
-		ManagerProfileDto managerProfileDto = this.transformEntityToDto(managerProfileEntity);
+        if (managerProfileName.isEmpty()) {
+            throw new BusinessException("El perfil de gestor debe contener un nombre.");
+        }
 
-		return managerProfileDto;
-	}
+        if (description.isEmpty()) {
+            throw new BusinessException("El perfil de gestor debe contener una descripción.");
+        }
+
+        // verify manager profile exists
+        ManagerProfileEntity managerProfileEntity = managerProfileService.getManagerProfileById(managerProfileId);
+        if (managerProfileEntity == null) {
+            throw new BusinessException("Perfil no encontrado.");
+        }
+
+        managerProfileEntity.setName(managerProfileName);
+        managerProfileEntity.setDescription(description);
+
+        managerProfileEntity = managerProfileService.updateManagerProfile(managerProfileEntity);
+
+        return this.transformEntityToDto(managerProfileEntity);
+    }
 
 }
