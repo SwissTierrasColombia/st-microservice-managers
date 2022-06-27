@@ -23,13 +23,16 @@ public class ManagerEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 255)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "alias", nullable = true, length = 20)
+    @Column(name = "alias", length = 20)
     private String alias;
 
-    @Column(name = "tax_identification_number", nullable = false, length = 255)
+    @Column(name = "sinic_group_id", length = 80)
+    private String sinicGroupId;
+
+    @Column(name = "tax_identification_number", nullable = false)
     private String taxIdentificationNumber;
 
     @Column(name = "created_at", nullable = false)
@@ -92,4 +95,11 @@ public class ManagerEntity {
         this.alias = alias;
     }
 
+    public String getSinicGroupId() {
+        return sinicGroupId;
+    }
+
+    public void setSinicGroupId(String sinicGroupId) {
+        this.sinicGroupId = sinicGroupId;
+    }
 }

@@ -1,0 +1,1 @@
+ALTER TABLE managers.managers ADD sinic_group_id varchar NULL;

@@ -3,6 +3,7 @@ package com.ai.st.microservice.managers.business;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import com.ai.st.microservice.managers.services.tracing.SCMTracing;
 import org.slf4j.Logger;
@@ -185,7 +186,8 @@ public class ManagerBusiness {
         return listUsersDto;
     }
 
-    public ManagerDto addManager(String name, String taxIdentification, String alias) throws BusinessException {
+    public ManagerDto addManager(String name, String taxIdentification, String alias, Optional<String> groupId)
+            throws BusinessException {
 
         if (name.isEmpty()) {
             throw new BusinessException("El gestor debe contener un nombre.");
@@ -202,6 +204,11 @@ public class ManagerBusiness {
 
         managerEntity.setName(name.toUpperCase());
         managerEntity.setCreatedAt(new Date());
+
+        if (groupId.isPresent()) {
+            managerEntity.setSinicGroupId(groupId.get());
+        }
+
         managerEntity.setTaxIdentificationNumber(taxIdentification);
         managerEntity.setManagerState(managerState);
 
@@ -222,6 +229,7 @@ public class ManagerBusiness {
         managerDto.setCreatedAt(managerEntity.getCreatedAt());
         managerDto.setName(managerEntity.getName());
         managerDto.setTaxIdentificationNumber(managerEntity.getTaxIdentificationNumber());
+        managerDto.setGroupId(managerEntity.getSinicGroupId());
 
         ManagerStateDto managerStateDto = new ManagerStateDto();
         managerStateDto.setId(managerEntity.getManagerState().getId());
@@ -296,8 +304,8 @@ public class ManagerBusiness {
         return managerDto;
     }
 
-    public ManagerDto updateManager(Long managerId, String name, String taxIdentification, String alias)
-            throws BusinessException {
+    public ManagerDto updateManager(Long managerId, String name, String taxIdentification, String alias,
+            Optional<String> groupId) throws BusinessException {
 
         if (managerId <= 0) {
             throw new BusinessException("El gestor debe contener un id.");
@@ -325,6 +333,10 @@ public class ManagerBusiness {
             managerEntity.setAlias(alias);
         } else {
             managerEntity.setAlias(null);
+        }
+
+        if (groupId.isPresent()) {
+            managerEntity.setSinicGroupId(groupId.get());
         }
 
         managerEntity = managerService.updateManager(managerEntity);

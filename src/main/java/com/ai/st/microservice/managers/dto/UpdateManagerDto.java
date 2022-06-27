@@ -22,6 +22,9 @@ public class UpdateManagerDto implements Serializable {
     @ApiModelProperty(notes = "Manager Alias")
     private String alias;
 
+    @ApiModelProperty(notes = "Sinic Group ID")
+    private String groupId;
+
     public UpdateManagerDto() {
 
     }
@@ -58,9 +61,17 @@ public class UpdateManagerDto implements Serializable {
         this.alias = alias;
     }
 
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
     @Override
     public String toString() {
         return "UpdateManagerDto{" + "id=" + id + ", name='" + name + '\'' + ", taxIdentificationNumber='"
-                + taxIdentificationNumber + '\'' + ", alias='" + alias + '\'' + '}';
+                + taxIdentificationNumber + '\'' + ", alias='" + alias + '\'' + ", groupId='" + groupId + '\'' + '}';
     }
 }

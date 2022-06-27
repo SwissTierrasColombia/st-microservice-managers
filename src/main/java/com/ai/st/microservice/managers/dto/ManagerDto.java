@@ -20,6 +20,9 @@ public class ManagerDto implements Serializable {
     @ApiModelProperty(notes = "Manager Alias")
     private String alias;
 
+    @ApiModelProperty(notes = "Sinic Group ID")
+    private String groupId;
+
     @ApiModelProperty(required = true, notes = "Manager tax identification number")
     private String taxIdentificationNumber;
 
@@ -81,4 +84,11 @@ public class ManagerDto implements Serializable {
         this.alias = alias;
     }
 
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 }

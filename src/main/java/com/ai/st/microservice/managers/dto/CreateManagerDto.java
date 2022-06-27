@@ -1,6 +1,7 @@
 package com.ai.st.microservice.managers.dto;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,6 +19,9 @@ public class CreateManagerDto implements Serializable {
 
     @ApiModelProperty(notes = "Manager Alias")
     private String alias;
+
+    @ApiModelProperty(notes = "Group Id")
+    private String groupId;
 
     public CreateManagerDto() {
 
@@ -47,9 +51,17 @@ public class CreateManagerDto implements Serializable {
         this.alias = alias;
     }
 
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
     @Override
     public String toString() {
         return "CreateManagerDto{" + "name='" + name + '\'' + ", taxIdentificationNumber='" + taxIdentificationNumber
-                + '\'' + ", alias='" + alias + '\'' + '}';
+                + '\'' + ", alias='" + alias + '\'' + ", groupId='" + groupId + '\'' + '}';
     }
 }

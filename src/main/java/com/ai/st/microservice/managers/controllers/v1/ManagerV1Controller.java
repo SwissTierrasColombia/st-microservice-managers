@@ -2,6 +2,7 @@ package com.ai.st.microservice.managers.controllers.v1;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.ai.st.microservice.common.dto.general.BasicResponseDto;
 import com.ai.st.microservice.managers.services.CryptoService;
@@ -172,7 +173,8 @@ public class ManagerV1Controller {
                 throw new InputValidationException("El identificador de impuesto es requerido.");
             }
 
-            responseDto = managerBusiness.addManager(managerName, taxIdentification, requestCreateManager.getAlias());
+            responseDto = managerBusiness.addManager(managerName, taxIdentification, requestCreateManager.getAlias(),
+                    Optional.ofNullable(requestCreateManager.getGroupId()));
             httpStatus = HttpStatus.CREATED;
 
         } catch (InputValidationException e) {
@@ -289,7 +291,7 @@ public class ManagerV1Controller {
             }
 
             responseDto = managerBusiness.updateManager(managerId, managerName, taxIdentification,
-                    requestUpdateManager.getAlias());
+                    requestUpdateManager.getAlias(), Optional.ofNullable(requestUpdateManager.getGroupId()));
             httpStatus = HttpStatus.OK;
 
         } catch (InputValidationException e) {
